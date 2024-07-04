@@ -1,36 +1,50 @@
 ﻿@page "/editgame"
 @using Models
+@using Clients
 
 <PageTitle>New game</PageTitle>
 <h3>New Game</h3>
 
-<div class="row">
-	<div class="col-md-4 ">
-		<EditForm Model="@game" FormName="editGame">
-			<div class="mb-3">
-				<label for="name" class="form-label">Name:</label>
-				<InputText @bind-Value="game.Name" id="name" class="form-control" />
-			</div>
+@if (genres is null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<div class="row">
+		<div class="col-md-4 ">
+			<EditForm Model="@game" FormName="editGame">
+				<div class="mb-3">
+					<label for="name" class="form-label">Name:</label>
+					<InputText @bind-Value="game.Name" id="name" class="form-control" />
+				</div>
 
-			<div class="mb-3">
-				<label for="genre" class="form-label">Genre:</label>
-				<InputSelect @bind-Value="game.GenreId" id="genre" class="form-control">
-					<option value="">Select a genre</option>
-				</InputSelect>
-			</div>
+				<div class="mb-3">
+					<label for="genre" class="form-label">Genre:</label>
+					<InputSelect @bind-Value="game.GenreId" id="genre" class="form-control">
+						<option value="">Select a genre</option>
+						@foreach (var genre in genres)
+						{
+							<option value="@genre.Id">@genre.Name</option>
+						}
+					</InputSelect>
+				</div>
 
-			<div class="mb-3">
-				<label for="price" class="form-label">Price:</label>
-				<InputNumber @bind-Value="game.Price" id="price" class="form-control" />
-			</div>
+				<div class="mb-3">
+					<label for="price" class="form-label">Price:</label>
+					<InputNumber @bind-Value="game.Price" id="price" class="form-control" />
+				</div>
 
-			<div class="mb-3">
-				<label for="releaseDate" class="form-label">Release Date:</label>
-				<InputDate @bind-Value="game.ReleaseDate" id="releaseDate" class="form-control" />
-			</div>
-		</EditForm>
+				<div class="mb-3">
+					<label for="releaseDate" class="form-label">Release Date:</label>
+					<InputDate @bind-Value="game.ReleaseDate" id="releaseDate" class="form-control" />
+				</div>
+			</EditForm>
+		</div>
 	</div>
-</div>
+}
+
+
 
 @code {
 	private GameDetails game { get; set; } = new()
@@ -38,4 +52,13 @@
 			Name = string.Empty,
 			ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
 		};
+
+	private GenresClient genresClient = new();
+
+	private Genre[]? genres;
+
+	protected override void OnInitialized()
+	{
+		genres = genresClient.GetGenres();
+	}
 }
