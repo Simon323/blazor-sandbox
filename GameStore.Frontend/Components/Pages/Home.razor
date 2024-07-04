@@ -1,0 +1,53 @@
+﻿@page "/"
+@using Models;
+
+<PageTitle>Catalog</PageTitle>
+
+<table class="table table-striped table-bordered table-hover">
+	<thead class="table-dark">
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+			<th>Genre</th>
+			<th class="text-end">Price</th>
+			<th>Release date</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var game in games)
+		{
+			<tr>
+				<td>@game.Id</td>
+				<td>@game.Name</td>
+				<td>@game.Genre</td>
+				<td class="text-end">@game.Price.ToString("C2")</td>
+				<td>@game.ReleaseDate</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	private GameSummary[] games =
+	[
+		new()
+		{
+			Id = 1, Name = "Game 1", Genre = "Action", Price = 10.0M, ReleaseDate = new DateOnly(2021, 1, 1)
+		},
+		new()
+		{
+			Id = 2, Name = "Game 2", Genre = "Sport", Price = 21.0M, ReleaseDate = new DateOnly(1992, 1, 1)
+		},
+		new ()
+		{
+			Id = 3, Name = "Game 3", Genre = "RPG", Price = 15.0M, ReleaseDate = new DateOnly(2000, 1, 1)
+		},
+		new ()
+		{
+			Id = 4, Name = "Game 4", Genre = "Action", Price = 30.0M, ReleaseDate = new DateOnly(2010, 1, 1)
+		},
+	];
+}
+
+	
