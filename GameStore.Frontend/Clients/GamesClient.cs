@@ -13,4 +13,23 @@ public class GamesClient
 	];
 
 	public GameSummary[] GetGames() => [.. _games];
+
+	private readonly Genre[] _genres = new GenresClient().GetGenres();
+
+	public void AddGame(GameDetails game)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(game.GenreId);
+		var genre = _genres.Single(x => x.Id == int.Parse(game.GenreId));
+
+		var gameSummary = new GameSummary
+		{
+			Id = _games.Count + 1,
+			Name = game.Name,
+			Genre = genre.Name,
+			Price = game.Price,
+			ReleaseDate = game.ReleaseDate,
+		};
+
+		_games.Add(gameSummary);
+	}
 }

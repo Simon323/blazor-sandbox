@@ -1,6 +1,4 @@
 ﻿@page "/editgame"
-@using Models
-@using Clients
 
 <PageTitle>New game</PageTitle>
 <h3>New Game</h3>
@@ -13,7 +11,7 @@ else
 {
 	<div class="row">
 		<div class="col-md-4 ">
-			<EditForm Model="@game" FormName="editGame">
+			<EditForm Model="@game" FormName="editGame" OnSubmit="HandleSubmit">
 				<div class="mb-3">
 					<label for="name" class="form-label">Name:</label>
 					<InputText @bind-Value="game.Name" id="name" class="form-control" />
@@ -39,6 +37,7 @@ else
 					<label for="releaseDate" class="form-label">Release Date:</label>
 					<InputDate @bind-Value="game.ReleaseDate" id="releaseDate" class="form-control" />
 				</div>
+				<button type="submit" class="btn btn-primary">Save</button>
 			</EditForm>
 		</div>
 	</div>
@@ -47,18 +46,25 @@ else
 
 
 @code {
+	[SupplyParameterFromForm]
 	private GameDetails game { get; set; } = new()
 		{
 			Name = string.Empty,
 			ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
 		};
 
-	private GenresClient genresClient = new();
+	private GenresClient _genresClient = new();
+	private GamesClient _gamesClient = new();
 
 	private Genre[]? genres;
 
 	protected override void OnInitialized()
 	{
-		genres = genresClient.GetGenres();
+		genres = _genresClient.GetGenres();
+	}
+
+	private void HandleSubmit()
+	{
+		_gamesClient.AddGame(game);
 	}
 }
