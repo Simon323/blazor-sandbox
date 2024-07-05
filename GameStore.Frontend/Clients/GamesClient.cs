@@ -4,6 +4,8 @@ namespace GameStore.Frontend.Clients;
 
 public class GamesClient
 {
+	private readonly Genre[] _genres;
+
 	private readonly List<GameSummary> _games =
 	[
 		new() { Id = 1, Name = "Game 1", Genre = "Action", Price = 10.0M, ReleaseDate = new DateOnly(2021, 1, 1) },
@@ -14,7 +16,10 @@ public class GamesClient
 
 	public GameSummary[] GetGames() => [.. _games];
 
-	private readonly Genre[] _genres = new GenresClient().GetGenres();
+    public GamesClient(GenresClient genresClient)
+    {
+        _genres = genresClient.GetGenres();
+    }
 
 	public void AddGame(GameDetails game)
 	{

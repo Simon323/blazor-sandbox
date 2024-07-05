@@ -1,4 +1,7 @@
 ﻿@page "/editgame"
+@inject GamesClient GamesClient
+@inject GenresClient GenresClient
+@inject NavigationManager NavigationManager
 
 <PageTitle>New game</PageTitle>
 <h3>New Game</h3>
@@ -38,6 +41,7 @@ else
 					<InputDate @bind-Value="game.ReleaseDate" id="releaseDate" class="form-control" />
 				</div>
 				<button type="submit" class="btn btn-primary">Save</button>
+				<a role="button" class="btn btn-secondary" href="/">Cancel</a>
 			</EditForm>
 		</div>
 	</div>
@@ -53,18 +57,16 @@ else
 			ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
 		};
 
-	private GenresClient _genresClient = new();
-	private GamesClient _gamesClient = new();
-
 	private Genre[]? genres;
 
 	protected override void OnInitialized()
 	{
-		genres = _genresClient.GetGenres();
+		genres = GenresClient.GetGenres();
 	}
 
 	private void HandleSubmit()
 	{
-		_gamesClient.AddGame(game);
+		GamesClient.AddGame(game);
+		NavigationManager.NavigateTo("/");
 	}
 }
