@@ -1,12 +1,13 @@
 ﻿@page "/editgame"
+@page "/editgame/{id:int}"
 @inject GamesClient GamesClient
 @inject GenresClient GenresClient
 @inject NavigationManager NavigationManager
 
-<PageTitle>New game</PageTitle>
-<h3>New Game</h3>
+<PageTitle>@_title</PageTitle>
+<h3>@_title</h3>
 
-@if (genres is null)
+@if (genres is null || game is null)
 {
 	<p><em>Loading...</em></p>
 }
@@ -14,10 +15,13 @@ else
 {
 	<div class="row">
 		<div class="col-md-4 ">
-			<EditForm Model="@game" FormName="editGame" OnSubmit="HandleSubmit">
+			<EditForm Model="@game" FormName="editGame" OnValidSubmit="HandleSubmit">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
 				<div class="mb-3">
 					<label for="name" class="form-label">Name:</label>
 					<InputText @bind-Value="game.Name" id="name" class="form-control" />
+					<ValidationMessage For="@(() => game.Name)" />
 				</div>
 
 				<div class="mb-3">
@@ -29,11 +33,13 @@ else
 							<option value="@genre.Id">@genre.Name</option>
 						}
 					</InputSelect>
+					<ValidationMessage For="@(() => game.GenreId)" />
 				</div>
 
 				<div class="mb-3">
 					<label for="price" class="form-label">Price:</label>
 					<InputNumber @bind-Value="game.Price" id="price" class="form-control" />
+					<ValidationMessage For="@(() => game.Price)" />
 				</div>
 
 				<div class="mb-3">
@@ -50,14 +56,34 @@ else
 
 
 @code {
+	[Parameter]
+	public int? Id { get; set; }
+
 	[SupplyParameterFromForm]
-	private GameDetails game { get; set; } = new()
-		{
-			Name = string.Empty,
-			ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
-		};
+	private GameDetails? game { get; set; }
 
 	private Genre[]? genres;
+
+	private string _title = string.Empty;
+
+	protected override void OnParametersSet()
+	{
+		if (game is not null)
+		{
+			return;
+		}
+
+		if (Id is not null)
+		{
+			game = GamesClient.GetGame(Id.Value);
+			_title = $"Edit {game.Name}";
+		}
+		else
+		{
+			game = new() { Name = string.Empty, ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow) };
+			_title = "New Game";
+		}
+	}
 
 	protected override void OnInitialized()
 	{
@@ -66,7 +92,18 @@ else
 
 	private void HandleSubmit()
 	{
-		GamesClient.AddGame(game);
+		ArgumentNullException.ThrowIfNull(game);
+
+		if (Id is null)
+		{
+			GamesClient.AddGame(game);
+		}
+		else
+		{
+			game.Id = Id.Value;
+			GamesClient.UpdateGame(game);
+		}
+
 		NavigationManager.NavigateTo("/");
 	}
 }
