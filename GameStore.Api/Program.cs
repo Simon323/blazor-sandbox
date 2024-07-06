@@ -27,12 +27,7 @@ app.MapGet("/games", () => games);
 app.MapGet("/games/{id}", (int id) =>
 {
 	var game = games.SingleOrDefault(x => x.Id == id);
-	if (game is null)
-	{
-		return Results.NotFound();
-	}
-
-	return Results.Ok(game);
+	return game is null ? Results.NotFound() : Results.Ok(game);
 }).WithName(GetEndpointName);
 
 // POST /games
@@ -42,6 +37,34 @@ app.MapPost("/games", (CreateGameDto newGame) =>
 	games.Add(game);
 
 	return Results.CreatedAtRoute(GetEndpointName, new { id = game.Id }, game);
+});
+
+// PUT /games/{id}
+app.MapPut("/games/{id}", (int id, UpdateGameDto updatedGame) =>
+{
+	var index = games.FindIndex(x => x.Id == id);
+
+	if (index == -1)
+	{
+		return Results.NotFound();
+	}
+
+	games[index] = games[index] with
+	{
+		Name = updatedGame.Name ?? games[index].Name,
+		Genre = updatedGame.Genre ?? games[index].Genre,
+		Price = updatedGame.Price,
+		ReleaseDate = updatedGame.ReleaseDate,
+	};
+
+	return Results.NoContent();
+});
+
+// DELETE /games/{id}
+app.MapDelete("/games/{id}", (int id) =>
+{
+	games.RemoveAll(game => game.Id == id);
+	return Results.NoContent();
 });
 
 app.UseSwagger();
