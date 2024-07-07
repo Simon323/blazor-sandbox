@@ -42,3 +42,28 @@ app.UseSwaggerUI(c =>
 	c.EnableTryItOutByDefault();
 });
 ```
+
+## Install dotnet-ef
+```bash
+dotnet tool install --global dotnet-ef --version 8.0.2
+```
+
+## Install Microsoft.EntityFrameworkCore.Design
+```bash
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 8.0.2
+```
+
+## List all dotnet tools
+```bash
+dotnet tool list --global
+```
+
+## Add a new migration
+```bash
+dotnet ef migrations add InitialCreate --output-dir Data\Migrations
+```
+
+## Update the database
+```bash
+dotnet ef database update
+```
