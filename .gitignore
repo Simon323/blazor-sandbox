@@ -333,3 +333,4 @@ logs/
 .vscode/
 
 .DS_Store
+GameStore.Api/GameStore.db*

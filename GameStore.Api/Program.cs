@@ -11,7 +11,8 @@ builder.Services.AddSqlite<GameStoreContext>(connectionString);
 
 var app = builder.Build();
 
-app.MapGamesEndpoints();
+app.MapGamesEndpoints(); // Register the games endpoints
+app.MigrateDb(); // Automatically migrate the database
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
