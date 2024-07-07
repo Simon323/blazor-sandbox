@@ -2,9 +2,9 @@
 
 namespace GameStore.Frontend.Clients;
 
-public class GamesClient
+public class GamesClient(HttpClient httpClient)
 {
-	private readonly Genre[] _genres;
+	private readonly Genre[] _genres = new GenresClient(httpClient).GetGenres();
 
 	private readonly List<GameSummary> _games =
 	[
@@ -14,12 +14,8 @@ public class GamesClient
 		new() { Id = 4, Name = "Game 4", Genre = "Action", Price = 30.0M, ReleaseDate = new DateOnly(2010, 1, 1) },
 	];
 
-	public GameSummary[] GetGames() => [.. _games];
-
-	public GamesClient(GenresClient genresClient)
-	{
-		_genres = genresClient.GetGenres();
-	}
+	public async Task<GameSummary[]> GetGames()
+		=> await httpClient.GetFromJsonAsync<GameSummary[]>("games") ?? [];
 
 	public void AddGame(GameDetails game)
 	{
