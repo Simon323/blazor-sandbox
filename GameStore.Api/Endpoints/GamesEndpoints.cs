@@ -15,34 +15,35 @@ public static class GamesEndpoints
 		var group = app.MapGroup("/games").WithParameterValidation();
 
 		// GET /games
-		group.MapGet("/", (GameStoreContext context) =>
-			context.Games
+		group.MapGet("/", async (GameStoreContext context) =>
+			await context.Games
 				.Include(game => game.Genre)
 				.Select(x => x.ToGameSummaryDto())
-				.AsNoTracking());
+				.AsNoTracking()
+				.ToListAsync());
 
 		// GET /games/{id}
-		group.MapGet("/{id}", (int id, GameStoreContext context) =>
+		group.MapGet("/{id}", async (int id, GameStoreContext context) =>
 		{
-			var game = context.Games.Find(id);
+			var game = await context.Games.FindAsync(id);
 			return game is null ? Results.NotFound() : Results.Ok(game.ToGameDetailsDto());
 		}).WithName(GetEndpointName);
 
 		// POST /games
-		group.MapPost("/", (CreateGameDto newGame, GameStoreContext context) =>
+		group.MapPost("/", async (CreateGameDto newGame, GameStoreContext context) =>
 		{
 			var game = newGame.ToEntity();
 
 			context.Games.Add(game);
-			context.SaveChanges();
+			await context.SaveChangesAsync();
 
-			return Results.CreatedAtRoute(GetEndpointName, new { id = game.Id }, game.ToGameSummaryDto());
+			return Results.CreatedAtRoute(GetEndpointName, new { id = game.Id }, game.ToGameDetailsDto());
 		});
 
 		// PUT /games/{id}
-		group.MapPut("/{id}", (int id, UpdateGameDto updatedGame, GameStoreContext context) =>
+		group.MapPut("/{id}", async (int id, UpdateGameDto updatedGame, GameStoreContext context) =>
 		{
-			var existingGame = context.Games.Find(id);
+			var existingGame = await context.Games.FindAsync(id);
 
 			if (existingGame is null)
 			{
@@ -50,17 +51,17 @@ public static class GamesEndpoints
 			}
 
 			context.Entry(existingGame).CurrentValues.SetValues(updatedGame.ToEntity(id));
-			context.SaveChanges();
+			await context.SaveChangesAsync();
 
 			return Results.NoContent();
 		});
 
 		// DELETE /games/{id}
-		group.MapDelete("/{id}", (int id, GameStoreContext context) =>
+		group.MapDelete("/{id}", async (int id, GameStoreContext context) =>
 		{
-			context.Games
+			await context.Games
 				.Where(game => game.Id == id)
-				.ExecuteDelete();
+				.ExecuteDeleteAsync();
 			return Results.NoContent();
 		});
 

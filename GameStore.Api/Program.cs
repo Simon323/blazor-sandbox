@@ -13,7 +13,7 @@ builder.Services.AddScoped<GameStoreContext>();
 var app = builder.Build();
 
 app.MapGamesEndpoints(); // Register the games endpoints
-app.MigrateDb(); // Automatically migrate the database
+await app.MigrateDbAsync(); // Automatically migrate the database
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
