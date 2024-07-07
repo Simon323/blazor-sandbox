@@ -23,6 +23,11 @@ dotnet watch
 Install-Package Swashbuckle.AspNetCore -Version 6.6.2
 ```
 
+## Install validation
+```bash
+Install-Package MinimalApis.Extensions -Version 0.11.0
+```
+
 In `Program.cs` add the following code
 ```csharp
 ...

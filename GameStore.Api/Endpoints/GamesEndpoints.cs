@@ -20,6 +20,7 @@ public static class GamesEndpoints
 
 	public static RouteGroupBuilder MapGamesEndpoints(this WebApplication app)
 	{
+		// WithParameterValidation() come from MinimalApis.Extensions package
 		var group = app.MapGroup("/games").WithParameterValidation();
 
 		// GET /games
