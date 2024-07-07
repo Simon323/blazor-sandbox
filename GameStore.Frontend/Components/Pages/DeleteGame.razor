@@ -34,9 +34,9 @@
 		return $"deleteModal-{game.Id}";
 	}
 
-	private void Confirm()
+	private async Task Confirm()
 	{
-		Client.DeleteGame(Game!.Id);
+		await Client.DeleteGame(Game!.Id);
 		Navigation.Refresh();
 	}
 }
