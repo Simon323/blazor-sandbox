@@ -1,9 +1,10 @@
 ﻿@page "/editgame"
 @page "/editgame/{id:int}"
+@rendermode InteractiveServer
+
 @inject GamesClient GamesClient
 @inject GenresClient GenresClient
 @inject NavigationManager NavigationManager
-@rendermode InteractiveServer
 
 <PageTitle>@_title</PageTitle>
 <h3>@_title</h3>
@@ -16,7 +17,7 @@ else
 {
 	<div class="row">
 		<div class="col-md-4 ">
-			<EditForm Model="@game" FormName="editGame" OnValidSubmit="HandleSubmitAsync">
+			<EditForm Model="@game" FormName="editGame" OnValidSubmit="HandleSubmitAsync" Enhance>
 				<DataAnnotationsValidator />
 				<ValidationSummary />
 				<div class="mb-3">

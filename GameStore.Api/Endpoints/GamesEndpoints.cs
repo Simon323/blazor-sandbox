@@ -16,11 +16,14 @@ public static class GamesEndpoints
 
 		// GET /games
 		group.MapGet("/", async (GameStoreContext context) =>
-			await context.Games
+		{
+			//await Task.Delay(10000); // Simulate a slow API
+			return await context.Games
 				.Include(game => game.Genre)
 				.Select(x => x.ToGameSummaryDto())
 				.AsNoTracking()
-				.ToListAsync());
+				.ToListAsync();
+		});
 
 		// GET /games/{id}
 		group.MapGet("/{id}", async (int id, GameStoreContext context) =>

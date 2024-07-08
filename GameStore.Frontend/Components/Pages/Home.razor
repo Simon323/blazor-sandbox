@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject GamesClient Client
+@attribute [StreamRendering]
 
 <PageTitle>Catalog</PageTitle>
 
@@ -44,7 +45,6 @@ else
 								<a class="btn btn-primary me-2" role="button" href="@GameUrl(game.Id)">
 									<i class="bi bi-pencil"></i>
 								</a>
-								@* <button class="btn btn-danger" data-bs-toogle="modal" data-bs-target=""> *@
 								<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(game)">
 									<i class="bi bi-trash"></i>
 								</button>
