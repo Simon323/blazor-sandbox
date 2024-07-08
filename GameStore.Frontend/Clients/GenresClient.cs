@@ -4,13 +4,6 @@ namespace GameStore.Frontend.Clients;
 
 public class GenresClient(HttpClient httpClient)
 {
-	private readonly Genre[] _genres =
-	[
-		new() { Id = 1, Name = "Action" },
-		new() { Id = 2, Name = "Adventure" },
-		new() { Id = 3, Name = "RPG" },
-		new() { Id = 4, Name = "Sport" },
-	];
-
-	public Genre[] GetGenres() => [.. _genres];
+	public async Task<Genre[]> GetGenres() 
+		=> await httpClient.GetFromJsonAsync<Genre[]>("genres") ?? [];
 }
