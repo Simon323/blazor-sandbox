@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Frontend", "GameStore.Frontend\GameStore.Frontend.csproj", "{EB526246-5225-4B2C-AE61-358D6377AF85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameStore.Api", "GameStore.Api\GameStore.Api.csproj", "{1B1A2701-6552-4610-8A33-BE5583A00307}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameStore.Api", "GameStore.Api\GameStore.Api.csproj", "{1B1A2701-6552-4610-8A33-BE5583A00307}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameStoreApp", "GameStoreApp", "{C869FAC9-D95E-4293-8953-02D779F37B53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EB526246-5225-4B2C-AE61-358D6377AF85} = {C869FAC9-D95E-4293-8953-02D779F37B53}
+		{1B1A2701-6552-4610-8A33-BE5583A00307} = {C869FAC9-D95E-4293-8953-02D779F37B53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75F753A9-5C9F-4C3C-AF6B-F9890869BEA2}
