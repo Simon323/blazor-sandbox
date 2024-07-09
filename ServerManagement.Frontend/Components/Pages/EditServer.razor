@@ -1,0 +1,78 @@
+﻿@page "/servers/{id:int}"
+
+@inject NavigationManager NavigationManager
+
+<h3>EditServer</h3>
+
+@if (server is not null)
+{
+	@* 	<p>@server.Name</p>
+	<p>@server.City</p>
+	<p>@(server.IsOnline ? "Online" : "Offline")</p> *@
+
+	<EditForm Model="@server" FormName="editServer" OnValidSubmit="Submit" Enhance>
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+
+		<InputNumber @bind-Value="server.ServerId" class="form-control" hidden />
+
+		<div class="row mb-3">
+			<div class="col-2">
+				<label for="name" class="col-form-label">Name:</label>
+			</div>
+			<div class="col-6">
+				<InputText id="name" @bind-Value="server.Name" class="form-control" />
+			</div>
+			<div class="col">
+				<ValidationMessage For="@(() => server.Name)" />
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<div class="col-2">
+				<label class="col-form-label">City:</label>
+			</div>
+			<div class="col-6">
+				<InputText @bind-Value="server.City" class="form-control" />
+			</div>
+			<div class="col">
+				<ValidationMessage For="@(() => server.City)" />
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<div class="col-2">
+				<label class="col-form-label">Online:</label>
+			</div>
+			<div class="col-6">
+				<InputCheckbox @bind-Value="server.IsOnline" class="form-check-input" />
+			</div>
+		</div>
+		<button type="submit" class="btn btn-primary">Save</button>
+		<a href="/servers" class="btn btn-primary">Back</a>
+	</EditForm>
+}
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	[SupplyParameterFromForm(FormName = "editServer")]
+	private Server? server { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		server ??= ServersRepository.GetServerById(Id);
+	}
+
+	private async Task Submit()
+	{
+		if (server is not null)
+		{
+			ServersRepository.UpdateServer(server.ServerId, server);
+		}
+
+		NavigationManager.NavigateTo("/servers");
+		await Task.CompletedTask;
+	}
+}

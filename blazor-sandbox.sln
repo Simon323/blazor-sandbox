@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GameStoreApp", "GameStoreAp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlazorDeepDive", "BlazorDeepDive", "{BE02F8FE-7929-4837-99A6-1BCA86A4BA76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManagement.Frontend", "ServerManagement.Frontend\ServerManagement.Frontend.csproj", "{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerManagement.Frontend", "ServerManagement.Frontend\ServerManagement.Frontend.csproj", "{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,6 @@
-﻿namespace ServerManagement.Frontend.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ServerManagement.Frontend.Models;
 
 public class Server
 {
@@ -13,7 +15,9 @@ public class Server
 
     public bool IsOnline { get; set; }
 
+    [Required]
     public string? Name { get; set; }
-    
-    public string? City { get; set; }
+
+	[Required]
+	public string? City { get; set; }
 }
