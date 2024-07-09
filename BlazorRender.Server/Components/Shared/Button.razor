@@ -1,0 +1,12 @@
+﻿<button @onclick="ButtonClicked">Click me!</button>
+
+<text>@text</text>
+
+@code {
+	string text = string.Empty;
+
+	private void ButtonClicked()
+	{
+		text = "Button has been clicked!";
+	}
+}
