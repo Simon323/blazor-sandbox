@@ -1,0 +1,61 @@
+﻿@page "/servers/add"
+@inject NavigationManager NavigationManager
+
+<h3>AddServer</h3>
+
+<EditForm Model="@server" FormName="addServer" OnValidSubmit="Submit" Enhance>
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<div class="row mb-3">
+		<div class="col-2">
+			<label for="name" class="col-form-label">Name:</label>
+		</div>
+		<div class="col-6">
+			<InputText id="name" @bind-Value="server.Name" class="form-control" />
+		</div>
+		<div class="col">
+			<ValidationMessage For="@(() => server.Name)" />
+		</div>
+	</div>
+
+	<div class="row mb-3">
+		<div class="col-2">
+			<label class="col-form-label">City:</label>
+		</div>
+		<div class="col-6">
+			<InputText @bind-Value="server.City" class="form-control" />
+		</div>
+		<div class="col">
+			<ValidationMessage For="@(() => server.City)" />
+		</div>
+	</div>
+
+	<div class="row mb-3">
+		<div class="col-2">
+			<label class="col-form-label">Online:</label>
+		</div>
+		<div class="col-6">
+			<InputCheckbox @bind-Value="server.IsOnline" class="form-check-input" />
+		</div>
+	</div>
+	<button type="submit" class="btn btn-primary">Save</button>
+	<a href="/servers" class="btn btn-primary">Back</a>
+</EditForm>
+
+@code {
+	[SupplyParameterFromForm(FormName = "addServer")]
+	private Server server { get; set; } = new Server { IsOnline = false };
+
+	private async Task Submit()
+	{
+		ArgumentNullException.ThrowIfNull(server);
+
+		if (server is not null)
+		{
+			ServersRepository.Add(server);
+			NavigationManager.NavigateTo("/servers");
+			await Task.CompletedTask;
+		}
+	}
+}
