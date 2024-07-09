@@ -1,0 +1,26 @@
+﻿@* <p style="color: @(server.IsOnline?"green":"red")">
+	@server.Name is in @server.City that is @(server.IsOnline ? "Online" : "Offline")
+</p> *@
+
+@if (server is not null)
+{
+	<div data-name="@server.Name" data-status="Server is @(server.IsOnline?"Online": "Offline")" style="@($"color: {(server.IsOnline?"green": "red")}")">
+		@server.Name is in @server.City that is @(server.IsOnline ? "Online" : "Offline")
+		&nbsp;
+		<button type="button" class="btn btn-primary" @onclick="HandleOnClickEvent">Turn on/off</button>
+	</div>
+}
+
+
+
+@code {
+	private Server? server { get; set; } = new Server{ Name = "Server 1", City = "New York" };
+
+	private void HandleOnClickEvent()
+	{
+		if (server is not null)
+		{
+			server.IsOnline = !server.IsOnline;
+		}
+	}
+}
