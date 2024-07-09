@@ -1,0 +1,21 @@
+﻿<button @onclick="ButtonClicked">Click me!</button>
+
+<text>@text</text>
+
+@code {
+	string text = string.Empty;
+
+	private void ButtonClicked()
+	{
+		var random = new Random();
+		var numer = random.Next(0, 4);
+		text = numer switch
+		{
+			0 => "You clicked me!",
+			1 => "You clicked me again!",
+			2 => "You clicked me one more time!",
+			3 => "You clicked me once more!",
+			_ => "You clicked me a lot of times!"
+		};
+	}
+}

@@ -1,9 +1,12 @@
 using BlazorRender.Server.Components;
+using BlazorRender.WebAssembly.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddRazorComponents()
+	.AddInteractiveServerComponents()
+	.AddInteractiveWebAssemblyComponents();
 
 var app = builder.Build();
 
@@ -20,6 +23,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>()
+	.AddInteractiveServerRenderMode()
+	.AddInteractiveWebAssemblyRenderMode()
+	.AddAdditionalAssemblies(typeof(MyButton).Assembly);
 
 app.Run();
