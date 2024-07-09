@@ -67,3 +67,37 @@ dotnet ef migrations add InitialCreate --output-dir Data\Migrations
 ```bash
 dotnet ef database update
 ```
+
+## Blazor enabled ServerMode
+In `Program.cs` add the following code
+```csharp
+...
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+...
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+```
+
+## Blazor enabled WebAssemblyMode
+Install package `Microsoft.AspNetCore.Components.WebAssembly.Server`
+
+In `Program.cs` add the following code
+```csharp
+...
+builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
+...
+app.MapRazorComponents<App>().AddInteractiveWebAssemblyRenderMode();
+```
+
+
+## Blazor app
+https://youtu.be/RBVIclt4sOo?si=lQRRaROyrd-3Bzjv&t=17793
+https://getbootstrap.com/docs/5.3/content/tables/
+
+## Rest API
+https://youtu.be/AhAxLiGC7Pc?si=7yUZyNITCa8uGqpk&t=8619
+
+## Blazor SSR / Server
+https://youtu.be/LMDo38DPxZc?si=1H202HqvHKCWlGA4&t=11908
+
+## Blazor SSR / Server / WebAssembly
+https://youtu.be/C_bYPn-OTtw?si=PS3t5lWGPlAKnPhT&t=509
