@@ -26,6 +26,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode()
 	.AddInteractiveWebAssemblyRenderMode()
-	.AddAdditionalAssemblies(typeof(MyButton).Assembly);
+	.AddAdditionalAssemblies(typeof(BlazorRender.WebAssembly._Imports).Assembly);
+	//.AddAdditionalAssemblies(typeof(MyButton).Assembly);
 
 app.Run();
