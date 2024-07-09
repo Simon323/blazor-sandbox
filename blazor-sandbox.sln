@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlazorDeepDive", "BlazorDee
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerManagement.Frontend", "ServerManagement.Frontend\ServerManagement.Frontend.csproj", "{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RenderMode", "RenderMode", "{7712C5C3-EF2F-447C-8AA5-0F59A3F40C4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorRender.Server", "BlazorRender.Server\BlazorRender.Server.csproj", "{27212911-D543-4E5C-B5D7-274EAEB9F9A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,10 @@ Global
 		{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27212911-D543-4E5C-B5D7-274EAEB9F9A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27212911-D543-4E5C-B5D7-274EAEB9F9A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27212911-D543-4E5C-B5D7-274EAEB9F9A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27212911-D543-4E5C-B5D7-274EAEB9F9A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +47,7 @@ Global
 		{EB526246-5225-4B2C-AE61-358D6377AF85} = {C869FAC9-D95E-4293-8953-02D779F37B53}
 		{1B1A2701-6552-4610-8A33-BE5583A00307} = {C869FAC9-D95E-4293-8953-02D779F37B53}
 		{2CCCF0D2-F2B1-422C-ADDF-E785A3503C49} = {BE02F8FE-7929-4837-99A6-1BCA86A4BA76}
+		{27212911-D543-4E5C-B5D7-274EAEB9F9A1} = {7712C5C3-EF2F-447C-8AA5-0F59A3F40C4F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75F753A9-5C9F-4C3C-AF6B-F9890869BEA2}
