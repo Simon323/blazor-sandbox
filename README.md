@@ -101,3 +101,6 @@ https://youtu.be/LMDo38DPxZc?si=1H202HqvHKCWlGA4&t=11908
 
 ## Blazor SSR / Server / WebAssembly
 https://youtu.be/C_bYPn-OTtw?si=PS3t5lWGPlAKnPhT&t=509
+
+## Blazor SSR / Server / WebAssembly
+https://youtu.be/u4azTLLGt8U?si=5ojoM7y4h6QHPpso&t=926
