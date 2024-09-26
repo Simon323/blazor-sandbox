@@ -334,3 +334,6 @@ logs/
 
 .DS_Store
 GameStore.Api/GameStore.db*
+BlazorIdentityApp/IdentityApp.db*
+/BlazorIdentityApp/IdentityApp.db-shm
+/BlazorIdentityApp/IdentityApp.db-wal

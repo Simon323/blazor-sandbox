@@ -25,9 +25,12 @@ builder.Services.AddAuthentication(options =>
 	})
 	.AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("IdentityApp") ?? throw new InvalidOperationException("Connection string 'IdentityApp' not found.");
+builder.Services.AddSqlite<ApplicationDbContext>(connectionString);
+builder.Services.AddScoped<ApplicationDbContext>();
+
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//	options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
