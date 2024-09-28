@@ -2,10 +2,15 @@ using BlazorIdentityApp.Client.Pages;
 using BlazorIdentityApp.Components;
 using BlazorIdentityApp.Components.Account;
 using BlazorIdentityApp.Data;
+using BlazorIdentityApp.Repositories;
+using BlazorIdentityApp.Shared.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,12 +24,38 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
+// JWT
+var key = builder.Configuration["Jwt:Key"];
+var keyBytes = Encoding.UTF8.GetBytes(key!);
+
 builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+	options.TokenValidationParameters = new TokenValidationParameters
 	{
-		options.DefaultScheme = IdentityConstants.ApplicationScheme;
-		options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-	})
-	.AddIdentityCookies();
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["Jwt:Issuer"],
+		ValidAudience = builder.Configuration["Jwt:Audience"],
+		IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+	};
+});
+
+
+
+// Cookies
+//builder.Services.AddAuthentication(options =>
+//	{
+//		options.DefaultScheme = IdentityConstants.ApplicationScheme;
+//		options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+//	})
+//	.AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("IdentityApp") ?? throw new InvalidOperationException("Connection string 'IdentityApp' not found.");
 builder.Services.AddSqlite<ApplicationDbContext>(connectionString);
@@ -43,6 +74,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 	.AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddScoped<IUserAccount, AccountRepository>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -61,6 +95,10 @@ else
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseStaticFiles();
 app.UseAntiforgery();
 
@@ -71,5 +109,13 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+app.MapControllers();
+
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlazorIdentityApp");
+//    c.EnableTryItOutByDefault();
+//});
 
 app.Run();
