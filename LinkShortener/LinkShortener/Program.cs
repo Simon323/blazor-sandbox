@@ -1,4 +1,5 @@
 using LinkShortener.Client.Interfaces;
+using LinkShortener.Client.Services;
 using LinkShortener.Components;
 using LinkShortener.Components.Account;
 using LinkShortener.Data;
@@ -40,7 +41,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 builder.Services.AddTransient<IShortCodeGeneratorService, ShortCodeGeneratorService>();
-builder.Services.AddTransient<ILinkService, LinkService>();
+builder.Services.AddTransient<ILinkService, LinkService>()
+	.AddScoped<SessionStorage>();
 
 var app = builder.Build();
 

@@ -20,4 +20,6 @@ builder.Services.AddRefitClient<ILinkApi>()
 		httpClient.BaseAddress = new Uri(apiUrl);
 	});
 
+builder.Services.AddScoped<SessionStorage>();
+
 await builder.Build().RunAsync();

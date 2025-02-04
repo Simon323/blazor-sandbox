@@ -3,6 +3,7 @@
 @using LinkShortener.Client.Services
 
 @inject ILinkService LinkService
+@inject SessionStorage SessionStorageService
 @inject NavigationManager NavigationManager
 
 <div class="">
@@ -41,6 +42,8 @@
 		var authState = await AuthStateTask;
 		if (authState.User.Identity is null || !authState.User.Identity.IsAuthenticated)
 		{
+			await SessionStorageService.SaveAsync(SessionStorage.LongUrlKey, _model.LongUrl);
+
 			NavigationManager.NavigateTo("Account/Login");
 			return;
 		}

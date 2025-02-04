@@ -1,0 +1,41 @@
+﻿@using LinkShortener.Client.Services
+@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+
+@inject SessionStorage SessionStorageService
+@inject ILinkService LinkService
+
+@if (_isProcessing)
+{
+	<Loader />
+}
+
+@code {
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+	private bool _isProcessing = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			var longUrl = await SessionStorageService.GetAsync(SessionStorage.LongUrlKey);
+			if (!string.IsNullOrWhiteSpace(longUrl))
+			{
+				_isProcessing = true;
+				StateHasChanged();
+
+				var authState = await AuthStateTask;
+				var userId = authState.User.GetUserId();
+
+				var dto = new LinkCreateDto(longUrl, userId);
+
+				var link = await LinkService.CreateLinkAsync(dto);
+
+				_isProcessing = false;
+				StateHasChanged();
+			}
+			await SessionStorageService.RemoveAsync(SessionStorage.LongUrlKey);
+		}
+	}
+}
