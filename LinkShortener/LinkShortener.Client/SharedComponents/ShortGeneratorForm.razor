@@ -28,12 +28,20 @@
 	<Loader />
 }
 
+@if (!string.IsNullOrWhiteSpace(_shortUrl))
+{
+	<Modal Title="Short Url Generated" OnClose="() => _shortUrl = null">
+		<p>Generated Short Url: @_shortUrl</p>
+	</Modal>
+}
+
 @code {
 	[CascadingParameter]
 	public Task<AuthenticationState> AuthStateTask { get; set; }
 
 	private ShortUrlGeneratorModel _model = new();
 	private bool _isProcessing = false;
+	private string? _shortUrl;
 
 	private async Task ShortUrlAsync()
 	{
@@ -53,6 +61,7 @@
 		var dto = new LinkCreateDto(_model.LongUrl, userId);
 		var link = await LinkService.CreateLinkAsync(dto);
 		_isProcessing = false;
+		_shortUrl = link.ShortUrl;
 	}
 
 	class ShortUrlGeneratorModel

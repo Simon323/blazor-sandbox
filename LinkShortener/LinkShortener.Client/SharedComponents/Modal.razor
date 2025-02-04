@@ -1,0 +1,45 @@
+﻿<div class="modal fade show" tabindex="-1" style="display: block;" aria-hidden="true" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-main text-white">
+				<h1 class="modal-title fs-5">@Title</h1>
+				<button type="button" class="btn-close" aria-label="Close" @onclick="OnClose"></button>
+			</div>
+			<div class="modal-body">
+				@ChildContent
+			</div>
+			@if (ShowFooter)
+			{
+				<div class="modal-footer">
+					@if (FooterContent is not null)
+					{
+						@FooterContent
+					}
+					else
+					{
+						<button type="button" class="btn btn-secondary" @onclick="OnClose">Ok</button>
+					}
+				</div>
+			}
+		</div>
+	</div>
+</div>
+
+<div class="modal-backdrop fade show"></div>
+
+@code {
+	[Parameter, EditorRequired]
+	public string Title { get; set; }
+
+	[Parameter, EditorRequired]
+	public RenderFragment ChildContent { get; set; }
+
+	[Parameter]
+	public RenderFragment FooterContent { get; set; }
+
+	[Parameter]
+	public bool ShowFooter { get; set; } = true;
+
+	[Parameter, EditorRequired]
+	public EventCallback OnClose { get; set; }
+}
