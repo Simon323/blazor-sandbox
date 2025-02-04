@@ -1,6 +1,9 @@
+using LinkShortener.Client.Interfaces;
 using LinkShortener.Components;
 using LinkShortener.Components.Account;
 using LinkShortener.Data;
+using LinkShortener.Endpoints;
+using LinkShortener.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +28,7 @@ builder.Services.AddAuthentication(options =>
 	.AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("LinkShortenerConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 	options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -35,6 +38,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 	.AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddTransient<IShortCodeGeneratorService, ShortCodeGeneratorService>();
+builder.Services.AddTransient<ILinkService, LinkService>();
 
 var app = builder.Build();
 
@@ -63,5 +69,7 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+app.MapLinkEndpoints();
 
 app.Run();

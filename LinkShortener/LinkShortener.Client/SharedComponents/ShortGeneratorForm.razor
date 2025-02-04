@@ -1,0 +1,60 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using LinkShortener.Client.Services
+
+@inject ILinkService LinkService
+@inject NavigationManager NavigationManager
+
+<div class="">
+	<EditForm Model="_model" OnValidSubmit="ShortUrlAsync">
+		<DataAnnotationsValidator />
+		<h2>Shorten a Long URL</h2>
+		<p>Enter/Paster a long url</p>
+		<div class="mb-3">
+			<InputText @bind-Value="_model.LongUrl" class="form-control" placeholder="Enter a long url" />
+			<ValidationMessage For="@(() => _model.LongUrl)" />
+		</div>
+		<div class="mb-3">
+			<button type="submit" class="btn btn-primary" disabled="@_isProcessing">
+				@(_isProcessing ? "Shortening url" : "Shorten URL")
+			</button>
+		</div>
+	</EditForm>
+</div>
+
+@if (_isProcessing)
+{
+	<Loader />
+}
+
+@code {
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+	private ShortUrlGeneratorModel _model = new();
+	private bool _isProcessing = false;
+
+	private async Task ShortUrlAsync()
+	{
+		_isProcessing = true;
+
+		var authState = await AuthStateTask;
+		if (authState.User.Identity is null || !authState.User.Identity.IsAuthenticated)
+		{
+			NavigationManager.NavigateTo("Account/Login");
+			return;
+		}
+
+		var userId = authState.User.GetUserId();
+
+		var dto = new LinkCreateDto(_model.LongUrl, userId);
+		var link = await LinkService.CreateLinkAsync(dto);
+		_isProcessing = false;
+	}
+
+	class ShortUrlGeneratorModel
+	{
+		[Required, Length(10, 250)]
+		public string LongUrl { get; set; }
+	}
+}
