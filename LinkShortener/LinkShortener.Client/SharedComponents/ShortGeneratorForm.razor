@@ -30,9 +30,7 @@
 
 @if (!string.IsNullOrWhiteSpace(_shortUrl))
 {
-	<Modal Title="Short Url Generated" OnClose="() => _shortUrl = null">
-		<p>Generated Short Url: @_shortUrl</p>
-	</Modal>
+	<GeneratedLinkModal ShortUrl="@_shortUrl" OnClose="() => _shortUrl = null" />
 }
 
 @code {

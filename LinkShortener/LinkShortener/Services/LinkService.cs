@@ -40,7 +40,7 @@ public class LinkService : ILinkService
 		{
 			Id = link.Id,
 			LongUrl = dto.LongUrl,
-			ShortUrl = link.ShortCode,
+			ShortUrl = link.ShortUrl,
 			IsActive = link.IsActive
 		};
 	}
