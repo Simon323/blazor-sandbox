@@ -8,11 +8,21 @@
 @layout InteractiveMainLayout
 
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 @inject ILinkService LinkService
 
 <SectionContent SectionName="client-heading">
 	<h1 class="text-main fw-bold text-center">My Links</h1>
 </SectionContent>
+
+<div class="row mt-3">
+	<div class="col-12 d-flex justify-content-between align-items-center">
+		<h3>@(_showActiveOnly ? "Active" : "All") Links</h3>
+		@* <a href="@ShowButtonLinkUrl" class="btn btn-sm btn-outline-primary">Show @(ShowActiveOnly ? "All" : "Active") Links</a> *@
+		<button type="button" class="btn btn-sm btn-outline-primary" @onclick="ToggleActiveOnly">Show @(_showActiveOnly ? "All" : "Active") Links</button>
+	</div>
+	<hr />
+</div>
 
 @if (_isLoading)
 {
@@ -21,7 +31,7 @@
 else
 {
 	<div class="row">
-		<QuickGrid ItemsProvider="_linksProvider" Pagination="_paginationState">
+		<QuickGrid ItemsProvider="_linksProvider" Pagination="_paginationState" @ref="_grid">
 			<TemplateColumn>
 				<div class="p-2 mb-4 border-bottom shadow">
 					<div class="row">
@@ -41,7 +51,7 @@ else
 							<div class="flex-grow-1">
 								<h5>
 									<a href="@context.ShortUrl" target="_blank" class="link-dark" title="@context.ShortUrl">@context.ShortUrl</a>
-									<button type="button" class="btn btn-sm btn-default ms">
+									<button type="button" class="btn btn-sm btn-default ms-1" @onclick="() => CopyLinkAsync(context.ShortUrl)">
 										<i class="bx bx-copy"></i>
 									</button>
 								</h5>
@@ -50,7 +60,7 @@ else
 										Long Url:
 										<a href="@context.LongUrl" target="_blank" class="link-dark" title="@context.LongUrl">@context.LongUrl</a>
 									</span>
-									<button type="button" class="btn btn-sm btn-default ms">
+									<button type="button" class="btn btn-sm btn-default ms-1" @onclick="() => CopyLinkAsync(context.LongUrl)">
 										<i class="bx bx-copy"></i>
 									</button>
 								</small>
@@ -82,30 +92,64 @@ else
 @code {
 	private const int PageSize = 5;
 
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
 	private bool _isLoading = false;
-	private LinkDto[] _links = [];
 
-	[SupplyParameterFromForm(Name = "show")]
-	private string? Show { get; set; } = ShowType.ActiveOnly.ToString();
+	// SSR
+	// [SupplyParameterFromQuery(Name = "show")]
+	// private string? Show { get; set; } = ShowType.ActiveOnly.ToString();
+	// private bool ShowActiveOnly => string.IsNullOrWhiteSpace(Show) || Show == ShowType.ActiveOnly.ToString();
+	// private string ShowButtonLinkUrl => ShowActiveOnly ? $"/app/my-links?show={ShowType.All}" : $"/app/my-links?show={ShowType.ActiveOnly}";
 
-	private bool ShowActiveOnly => string.IsNullOrWhiteSpace(Show) || Show == ShowType.ActiveOnly.ToString();
+	// Interactive
+	private bool _showActiveOnly = true;
 
 	private GridItemsProvider<LinkDto>? _linksProvider;
 
-	private PaginationState _paginationState = new() { ItemsPerPage = PageSize };
+	private QuickGrid<LinkDto>? _grid;
+
+	private readonly PaginationState _paginationState = new() { ItemsPerPage = PageSize };
 
 	protected override async Task OnInitializedAsync()
 	{
+		var authState = await AuthStateTask;
+		var userId = authState.User.GetUserId();
+
 		_linksProvider = async request =>
 		{
-			var (links, count) = await LinkService.GetLinksByUserAsync("", request.StartIndex, request.Count ?? PageSize, ShowActiveOnly);
+			var (links, count) = await LinkService.GetLinksByUserAsync(userId, request.StartIndex, request.Count ?? PageSize, _showActiveOnly);
 
 			return GridItemsProviderResult.From(links, count);
 		};
+	}
 
-		// _isLoading = true;
-		// (_links, var count) = await LinkService.GetLinksByUserAsync("", 0, 10, false);
-		// _isLoading = false;
+	// SSR
+	// protected override async Task OnParametersSetAsync()
+	// {
+	// 	_isLoading = true;
+	// 	if (_grid is not null)
+	// 	{
+	// 		await _grid.RefreshDataAsync();
+	// 	}
+	// 	_isLoading = false;
+	// }
+
+	private async Task ToggleActiveOnly()
+	{
+		_showActiveOnly = !_showActiveOnly;
+		_isLoading = true;
+		if (_grid is not null)
+		{
+			await _grid.RefreshDataAsync();
+		}
+		_isLoading = false;
+	}
+
+	private async Task CopyLinkAsync(string linkUrl)
+	{
+		await JsRuntime.InvokeVoidAsync("window.copyToClipboard", linkUrl);
 	}
 
 	enum ShowType
