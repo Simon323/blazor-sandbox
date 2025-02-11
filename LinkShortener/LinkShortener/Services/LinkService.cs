@@ -61,7 +61,8 @@ public class LinkService : ILinkService
 				Id = l.Id,
 				LongUrl = l.LongUrl,
 				ShortUrl = l.ShortUrl,
-				IsActive = l.IsActive
+				IsActive = l.IsActive,
+				TotalClicks = l.Analytics.Count
 			}).ToArrayAsync();
 
 		return new PagedResult<LinkDto>(links, totalLinks);

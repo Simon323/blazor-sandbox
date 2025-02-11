@@ -4,6 +4,7 @@
 
 @rendermode @(new InteractiveAutoRenderMode(prerender: false))
 
+
 @layout InteractiveMainLayout
 
 @inject NavigationManager NavigationManager
@@ -13,20 +14,77 @@
 	<h1 class="text-main fw-bold text-center">My Links</h1>
 </SectionContent>
 
-<div class="row">
-	<ul>
-		@foreach(var link in _links)
+@if (_isLoading)
+{
+	<Loader />
+}
+else
+{
+	<div class="row">
+		@foreach (var link in _links)
 		{
-		<li>@link.ShortUrl - @link.LongUrl</li>
+			<div class="p-2 mb-4 border-bottom shadow">
+				<div class="row">
+					<div class="col-sm-6 d-flex">
+						<div class="h3 d-flex flex-column justify-content-center">
+							<i class="bx bx-link"></i>
+							@if (link.IsActive)
+							{
+								<i class="bx bx-check text-success fw-bold" title="Active"></i>
+							}
+							else
+							{
+								<i class="bx bx-x text-danger fw-bold" title="In-active"></i>
+							}
+						</div>
+						<div class="vr mx-3"></div>
+						<div class="flex-grow-1">
+							<h5>
+								<a href="@link.ShortUrl" target="_blank" class="link-dark" title="@link.ShortUrl">@link.ShortUrl</a>
+								<button type="button" class="btn btn-sm btn-default ms">
+									<i class="bx bx-copy"></i>
+								</button>
+							</h5>
+							<small class="d-flex">
+								<span>
+									Long Url:
+									<a href="@link.LongUrl" target="_blank" class="link-dark" title="@link.LongUrl">@link.LongUrl</a>
+								</span>
+								<button type="button" class="btn btn-sm btn-default ms">
+									<i class="bx bx-copy"></i>
+								</button>
+							</small>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<h5>Total Clicks: @link.TotalClicks</h5>
+						<a href="/app/my-links/@link.Id" class="btn btn-sm btn-main">
+							<i class="bx bx-chart me-1"></i><span>viewport Details</span>
+						</a>
+					</div>
+					<div class="col-sm-3 d-flex flex-col justify-content-center align-items-center gap-2">
+						<button type="button" class="btn btn-sm btn-outline-dark">
+							<i class="bx bx-edit me-1"></i><span>Edit</span>
+						</button>
+						<button type="button" class="btn btn-sm btn-outline-danger">
+							<i class="bx bx-trash me-1"></i><span>Delete</span>
+						</button>
+					</div>
+				</div>
+			</div>
 		}
-	</ul>
-</div>
+	</div>
+}
+
 
 @code {
+	private bool _isLoading = true;
 	private LinkDto[] _links = [];
 
 	protected override async Task OnInitializedAsync()
 	{
+		_isLoading = true;
 		(_links, var count) = await LinkService.GetLinksByUserAsync("", 0, 10, false);
+		_isLoading = false;
 	}
 }
