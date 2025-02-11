@@ -44,4 +44,26 @@ public class LinkService : ILinkService
 			IsActive = link.IsActive
 		};
 	}
+
+	public async Task<PagedResult<LinkDto>> GetLinksByUserAsync(string userId, int startIndex, int pageSize, bool aciveOnly)
+	{
+		await using var context = _contextFactory.CreateDbContext();
+
+		var query = context.Links.Where(l => l.UserId == userId);
+
+		var queryResult = aciveOnly ? query.Where(l => l.IsActive) : query;
+
+		var totalLinks = await queryResult.CountAsync();
+		var links = await query.Skip(startIndex)
+			.Take(pageSize)
+			.Select(l => new LinkDto
+			{
+				Id = l.Id,
+				LongUrl = l.LongUrl,
+				ShortUrl = l.ShortUrl,
+				IsActive = l.IsActive
+			}).ToArrayAsync();
+
+		return new PagedResult<LinkDto>(links, totalLinks);
+	}
 }

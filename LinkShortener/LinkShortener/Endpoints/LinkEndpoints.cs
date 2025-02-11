@@ -9,7 +9,9 @@ public static class LinkEndpoints
 {
 	public static IEndpointRouteBuilder MapLinkEndpoints(this IEndpointRouteBuilder app)
 	{
-		app.MapPost("/api/links", async (LinkCreateDto dto, ILinkService linkservice, ClaimsPrincipal principal) =>
+		var linksGroup = app.MapGroup("/api/links").RequireAuthorization();
+
+		linksGroup.MapPost("", async (LinkCreateDto dto, ILinkService linkservice, ClaimsPrincipal principal) =>
 		{
 			var userId = principal.GetUserId();
 			if (userId != dto.UserId)
@@ -18,8 +20,15 @@ public static class LinkEndpoints
 			var link = await linkservice.CreateLinkAsync(dto);
 			return Results.Ok(link);
 
-		}).RequireAuthorization();
+		});
 
-		return app;
+		linksGroup.MapGet("", async (ILinkService linkservice, ClaimsPrincipal principal, int startIndex, int pageSize, bool activeOnly) =>
+		{
+			var userId = principal.GetUserId();
+			var links = await linkservice.GetLinksByUserAsync(userId, startIndex, pageSize, activeOnly);
+			return Results.Ok(links);
+		});
+
+		return linksGroup;
 	}
 }
