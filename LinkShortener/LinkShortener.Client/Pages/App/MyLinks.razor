@@ -1,11 +1,8 @@
 ﻿@page "/app/my-links"
-@using LinkShortener.Client.Layout
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.AspNetCore.Components.Sections
 
 @rendermode @(new InteractiveAutoRenderMode(prerender: false))
-
-@layout InteractiveMainLayout
 
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime

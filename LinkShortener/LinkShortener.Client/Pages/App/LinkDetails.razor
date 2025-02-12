@@ -1,0 +1,70 @@
+﻿@page "/app/my-links/{linkId:long}";
+@using LinkShortener.Client.Layout
+@using Microsoft.AspNetCore.Components.Sections
+
+@rendermode @(new InteractiveAutoRenderMode(prerender:false))
+
+@inject NavigationManager NavigationManager
+@inject ILinkService LinkService
+
+<PageTitle>Link Details</PageTitle>
+
+<SectionContent SectionName="client-heading">
+	<h1 class="text-main fw-bold text-center">
+		<i class="bx bx-link me-1"></i>
+		<span>@_linkDetailsDto?.Link.ShortUrl</span>
+	</h1>
+	<hr class="text-main" />
+</SectionContent>
+
+@if (_isLoading)
+{
+	<Loader />
+}
+else
+{
+	<div class="row">
+		<div class="col-12">
+			<h3 class="text-main fw-bold">Link Details</h3>
+			<ul class="list-unstyled">
+				<li class="h5 mb-3">Long URL: <a href="@_linkDetailsDto?.Link.LongUrl" class="" target="_blank">@_linkDetailsDto!.Link.LongUrl</a></li>
+				<li class="h5 mb-3">Short URL: <a href="@_linkDetailsDto?.Link.ShortUrl" class="" target="_blank">@_linkDetailsDto!.Link.ShortUrl</a></li>
+				<li class="h5 mb-3">Is Active: <span class="fw-bold @(_linkDetailsDto.Link.IsActive ? "text-success": "text-danger")">@_linkDetailsDto.Link.IsActive</span></li>
+				<li class="h5 mb-3">Total Clicks: @_linkDetailsDto.Link.TotalClicks</li>
+			</ul>
+		</div>
+	</div>
+	<h4 class="fw-bold text-main">Analtics</h4>
+	<span>Coming soon...</span>
+}
+
+@code {
+	[Parameter]
+	public long LinkId { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+	private LinkDetailsDto? _linkDetailsDto;
+
+	private bool _isLoading = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (LinkId == 0)
+		{
+			NavigationManager.NavigateTo("/app/my-links", replace: true);
+			return;
+		}
+		_isLoading = true;
+		var authTask = await AuthStateTask;
+		var userId = authTask.User.GetUserId();
+		_linkDetailsDto = await LinkService.GetLinkAsync(LinkId, userId);
+		if (_linkDetailsDto is null)
+		{
+			NavigationManager.NavigateTo("/app/my-links");
+			return;
+		}
+		_isLoading = false;
+	}
+}

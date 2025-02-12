@@ -59,6 +59,37 @@ public class LinkService : ILinkService
 		await context.SaveChangesAsync();
 	}
 
+	public async Task<LinkDetailsDto?> GetLinkAsync(long id, string userId)
+	{
+		await using var context = _contextFactory.CreateDbContext();
+		var link = await context.Links
+			.Include(l => l.Analytics)
+			.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
+
+		if (link is null)
+			return null;
+
+		var linkAnalytics = (link.Analytics
+			.Select(a => new LinkAnalyticDto
+			{
+				Id = a.Id,
+				ClickedAt = a.CreatedAt,
+				LinkId = a.LinkId,
+			}).ToArray())
+			?? [];
+
+		var linkDto = new LinkDto
+		{
+			Id = link.Id,
+			IsActive = link.IsActive,
+			LongUrl = link.LongUrl,
+			ShortUrl = link.ShortUrl,
+			TotalClicks = linkAnalytics.Length
+		};
+
+		return new LinkDetailsDto(linkDto, linkAnalytics);
+	}
+
 	public async Task<PagedResult<LinkDto>> GetLinksByUserAsync(string userId, int startIndex, int pageSize, bool aciveOnly)
 	{
 		await using var context = _contextFactory.CreateDbContext();

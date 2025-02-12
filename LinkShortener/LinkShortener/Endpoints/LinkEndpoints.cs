@@ -52,6 +52,15 @@ public static class LinkEndpoints
 			return Results.NoContent();
 		});
 
+		linksGroup.MapGet("/{linkId:long}", async (long linkId, ILinkService linkService, ClaimsPrincipal principal) =>
+		{
+			var userId = principal.GetUserId();
+			var linkDetailsDto = await linkService.GetLinkAsync(linkId, userId);
+			if (linkDetailsDto is null)
+				return Results.NotFound(linkId);
+			return Results.Ok(linkDetailsDto);
+		});
+
 		return linksGroup;
 	}
 }
