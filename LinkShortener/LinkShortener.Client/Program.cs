@@ -7,6 +7,8 @@ using Refit;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+builder.Services.AddBlazorBootstrap();
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();

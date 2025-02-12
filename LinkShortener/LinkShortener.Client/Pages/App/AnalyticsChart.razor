@@ -1,0 +1,61 @@
+﻿@using BlazorBootstrap
+<div class="container-fluid overflow-x-auto">
+	<LineChart @ref="lineChart" Width="800" />
+</div>
+
+@code {
+	[Parameter, EditorRequired]
+	public LinkClickData[] LinkClicks { get; set; }
+
+	private LineChart lineChart = default!;
+	private LineChartOptions lineChartOptions = default!;
+	private ChartData chartData = default!;
+
+	protected override void OnInitialized()
+	{
+		var colors = ColorUtility.CategoricalTwelveColors;
+
+		var labels = LinkClicks.Select(x => x.ClickedOnStr).ToList();
+		var data = LinkClicks.Select(x => (double?)x.Clicks).ToList() ?? new List<double?>();
+
+		var datasets = new List<IChartDataset>();
+
+		var dataset1 = new LineChartDataset
+			{
+				Label = "Link",
+				Data = data,
+				BackgroundColor = colors[0],
+				BorderColor = colors[0],
+				BorderWidth = 2,
+				HoverBorderWidth = 4,
+			};
+		datasets.Add(dataset1);
+
+
+		chartData = new ChartData { Labels = labels, Datasets = datasets };
+
+		lineChartOptions = new();
+		lineChartOptions.Responsive = true;
+		lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+		lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Days", Display = true };
+		lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Clicks", Display = true };
+
+		lineChartOptions.Plugins.Title!.Text = "Link Clicks";
+		lineChartOptions.Plugins.Title.Display = true;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await lineChart.InitializeAsync(chartData, lineChartOptions);
+		}
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	public record LinkClickData(DateTime ClickedOn, int Clicks)
+	{
+		public string ClickedOnStr => ClickedOn.ToString("dd/MM/yyyy");
+	}
+}

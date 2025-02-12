@@ -1,8 +1,11 @@
 ﻿@page "/app/my-links/{linkId:long}";
+@using BlazorBootstrap
 @using LinkShortener.Client.Layout
 @using Microsoft.AspNetCore.Components.Sections
+@using static LinkShortener.Client.Pages.App.AnalyticsChart
 
-@rendermode @(new InteractiveAutoRenderMode(prerender:false))
+@* @rendermode @(new InteractiveAutoRenderMode(prerender:false)) *@
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
 
 @inject NavigationManager NavigationManager
 @inject ILinkService LinkService
@@ -35,7 +38,7 @@ else
 		</div>
 	</div>
 	<h4 class="fw-bold text-main">Analtics</h4>
-	<span>Coming soon...</span>
+	<AnalyticsChart LinkClicks="_linkClicks" />
 }
 
 @code {
@@ -49,6 +52,8 @@ else
 
 	private bool _isLoading = false;
 
+	private LinkClickData[] _linkClicks = [];
+
 	protected override async Task OnInitializedAsync()
 	{
 		if (LinkId == 0)
@@ -56,15 +61,25 @@ else
 			NavigationManager.NavigateTo("/app/my-links", replace: true);
 			return;
 		}
+
 		_isLoading = true;
+
 		var authTask = await AuthStateTask;
 		var userId = authTask.User.GetUserId();
+
 		_linkDetailsDto = await LinkService.GetLinkAsync(LinkId, userId);
 		if (_linkDetailsDto is null)
 		{
 			NavigationManager.NavigateTo("/app/my-links");
 			return;
 		}
+
+		_linkClicks = _linkDetailsDto.LinkAnalytic
+		.GroupBy(a => a.ClickedAt.Date)
+		.Select(g => new LinkClickData(g.Key, g.Count()))
+		.OrderBy(l => l.ClickedOn)
+		.ToArray();
+
 		_isLoading = false;
 	}
 }
