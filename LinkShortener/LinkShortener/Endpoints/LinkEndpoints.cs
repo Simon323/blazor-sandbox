@@ -29,6 +29,22 @@ public static class LinkEndpoints
 			return Results.Ok(links);
 		});
 
+		linksGroup.MapPatch("/{linkId:long}", async (long linkId, LinkEditDto dto, ILinkService linkService, ClaimsPrincipal principal) =>
+		{
+			var userId = principal.GetUserId();
+			if (userId != dto.UserId)
+				return Results.Unauthorized();
+			if (linkId != dto.Id)
+				return Results.NotFound();
+
+
+			var link = await linkService.UpdateLinkAsync(dto);
+			if (link is null)
+				return Results.NotFound(linkId);
+
+			return Results.Ok(link);
+		});
+
 		return linksGroup;
 	}
 }

@@ -78,7 +78,7 @@ else
 							</a>
 						</div>
 						<div class="col-sm-3 d-flex flex-col justify-content-center align-items-center gap-2">
-							<button type="button" class="btn btn-sm btn-outline-dark">
+							<button type="button" class="btn btn-sm btn-outline-dark" @onclick="() => _editLink = context">
 								<i class="bx bx-edit me-1"></i><span>Edit</span>
 							</button>
 							<button type="button" class="btn btn-sm btn-outline-danger">
@@ -91,6 +91,14 @@ else
 		</QuickGrid>
 		<Paginator State="_paginationState" />
 	</div>
+}
+
+@if (_editLink is not null)
+{
+	<EditLinkModal Link="@_editLink"
+		UserId="@_userId"
+		OnClose="() => _editLink = null"
+		OnSave="OnLinkUpdated" />
 }
 
 
@@ -119,14 +127,18 @@ else
 
 	private readonly PaginationState _paginationState = new() { ItemsPerPage = PageSize };
 
+	private LinkDto? _editLink = null;
+
+	private string _userId;
+
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await AuthStateTask;
-		var userId = authState.User.GetUserId();
+		_userId = authState.User.GetUserId();
 
 		_linksProvider = async request =>
 		{
-			var (links, count) = await LinkService.GetLinksByUserAsync(userId, request.StartIndex, request.Count ?? PageSize, _showActiveOnly);
+			var (links, count) = await LinkService.GetLinksByUserAsync(_userId, request.StartIndex, request.Count ?? PageSize, _showActiveOnly);
 
 			return GridItemsProviderResult.From(links, count);
 		};
@@ -158,6 +170,25 @@ else
 	{
 		await JsRuntime.InvokeVoidAsync("window.copyToClipboard", linkUrl);
 		_showToast = true;
+	}
+
+	private async Task OnLinkUpdated(LinkDto updatedLink)
+	{
+		_editLink!.LongUrl = updatedLink.LongUrl;
+
+		if (_editLink.IsActive && !updatedLink.IsActive)
+		{
+			if (_showActiveOnly)
+			{
+				await _grid!.RefreshDataAsync();
+				_editLink = null;
+
+				return;
+			}
+		}
+
+		_editLink!.IsActive = updatedLink.IsActive;
+		_editLink = null;
 	}
 
 	enum ShowType
