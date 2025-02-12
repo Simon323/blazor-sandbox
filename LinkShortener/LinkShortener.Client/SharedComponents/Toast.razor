@@ -12,9 +12,12 @@
 	[Parameter, EditorRequired]
 	public EventCallback OnClose { get; set; }
 
+	[Parameter]
+	public int TimeoutInMiliseconds { get; set; } = 1000;
+
 	protected override async Task OnInitializedAsync()
 	{
-		await Task.Delay(3000);
+		await Task.Delay(TimeoutInMiliseconds);
 		await OnClose.InvokeAsync();
 	}
 }

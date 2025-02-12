@@ -24,6 +24,11 @@
 	<hr />
 </div>
 
+@if (_showToast)
+{
+	<Toast Text="Link copied to clipboard" OnClose="() => _showToast = false" />
+}
+
 @if (_isLoading)
 {
 	<Loader />
@@ -97,6 +102,8 @@ else
 
 	private bool _isLoading = false;
 
+	private bool _showToast = false;
+
 	// SSR
 	// [SupplyParameterFromQuery(Name = "show")]
 	// private string? Show { get; set; } = ShowType.ActiveOnly.ToString();
@@ -150,6 +157,7 @@ else
 	private async Task CopyLinkAsync(string linkUrl)
 	{
 		await JsRuntime.InvokeVoidAsync("window.copyToClipboard", linkUrl);
+		_showToast = true;
 	}
 
 	enum ShowType
