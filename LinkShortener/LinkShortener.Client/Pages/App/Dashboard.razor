@@ -1,0 +1,78 @@
+﻿@page "/app/dashboard"
+
+@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+
+@inject ILinkService LinkService
+@inject NavigationManager NavigationManager
+
+<SectionContent SectionName="client-heading">
+	<h1 class="text-main fw-bold text-center">My Links</h1>
+</SectionContent>
+
+@if (_isLoading)
+{
+	<Loader />
+}
+else
+{
+	<div class="row">
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg cursor-pointer" @onclick="GoToMyLinksPageAsync">
+				<h3>Total Links</h3>
+				<h2>@_dashboardDataDto.TotalLinks</h2>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg">
+				<h3>Total Clicks</h3>
+				<h2>@_dashboardDataDto.TotalClicks</h2>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg cursor-pointer" @onclick="GoToMyLinksPageAsync">
+				<h3>Active Links</h3>
+				<h2>@_dashboardDataDto.TotalActiveLinks</h2>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg">
+				<h3>Inactive Links</h3>
+				<h2>@_dashboardDataDto.TotalInactiveLinks</h2>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg">
+				<h3>Today's Links'</h3>
+				<h2>@_dashboardDataDto.TotalLinksCreatedToday</h2>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="box bg-main text-white shadow-lg">
+				<h3>Today's Clicks'</h3>
+				<h2>@_dashboardDataDto.TotalClicksToday</h2>
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+	private DashboardDataDto _dashboardDataDto;
+	private bool _isLoading = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_isLoading = true;
+
+		var authState = await AuthStateTask;
+		var userId = authState.User.GetUserId();
+
+		_dashboardDataDto = await LinkService.GetDashboardDataAsync(userId);
+
+		_isLoading = false;
+	}
+
+	private void GoToMyLinksPageAsync() => NavigationManager.NavigateTo("/app/my-links");
+}

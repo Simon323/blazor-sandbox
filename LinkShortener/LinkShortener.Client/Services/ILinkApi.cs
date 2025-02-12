@@ -19,4 +19,7 @@ public interface ILinkApi
 
 	[Get("/api/links/{linkId}")]
 	Task<LinkDetailsDto?> GetLinkAsync(long linkId);
+
+	[Get("/api/links/dashboard")]
+	Task<DashboardDataDto> GetDashboardDataAsync();
 }

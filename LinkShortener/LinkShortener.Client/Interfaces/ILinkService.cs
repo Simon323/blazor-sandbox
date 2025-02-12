@@ -13,4 +13,6 @@ public interface ILinkService
 	Task DeleteLinkAsync(long id, string userId);
 
 	Task<LinkDetailsDto?> GetLinkAsync(long id, string userId);
+
+	Task<DashboardDataDto> GetDashboardDataAsync(string userId);
 }

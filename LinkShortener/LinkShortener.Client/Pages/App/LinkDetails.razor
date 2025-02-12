@@ -4,8 +4,7 @@
 @using Microsoft.AspNetCore.Components.Sections
 @using static LinkShortener.Client.Pages.App.AnalyticsChart
 
-@* @rendermode @(new InteractiveAutoRenderMode(prerender:false)) *@
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@rendermode @(new InteractiveAutoRenderMode(prerender:false))
 
 @inject NavigationManager NavigationManager
 @inject ILinkService LinkService
