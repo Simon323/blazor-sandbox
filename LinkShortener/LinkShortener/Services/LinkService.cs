@@ -68,7 +68,9 @@ public class LinkService : ILinkService
 		var queryResult = aciveOnly ? query.Where(l => l.IsActive) : query;
 
 		var totalLinks = await queryResult.CountAsync();
-		var links = await queryResult.Skip(startIndex)
+		var links = await queryResult
+			.OrderByDescending(l => l.Id)
+			.Skip(startIndex)
 			.Take(pageSize)
 			.Select(l => new LinkDto
 			{

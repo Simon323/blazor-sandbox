@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener", "LinkShorte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener.Client", "LinkShortener\LinkShortener.Client\LinkShortener.Client.csproj", "{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener.Public", "LinkShortener.Public\LinkShortener.Public.csproj", "{1AC44105-0211-4970-9AC3-ECEE4DF01C00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener.Data", "LinkShortener.Data\LinkShortener.Data.csproj", "{DF1FBA34-B53F-40E1-B873-142ACFA56C95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +83,14 @@ Global
 		{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AC44105-0211-4970-9AC3-ECEE4DF01C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AC44105-0211-4970-9AC3-ECEE4DF01C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AC44105-0211-4970-9AC3-ECEE4DF01C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AC44105-0211-4970-9AC3-ECEE4DF01C00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,6 +106,8 @@ Global
 		{ECE34E6C-8367-4C81-B5F8-7CD9390DA530} = {EFDDD555-4FBF-4B0D-94BE-0A930695AD7B}
 		{04A49CB1-6D95-44E0-B11F-A13BA5574F17} = {673FBFC8-9865-43E5-853B-089B0420A945}
 		{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8} = {673FBFC8-9865-43E5-853B-089B0420A945}
+		{1AC44105-0211-4970-9AC3-ECEE4DF01C00} = {673FBFC8-9865-43E5-853B-089B0420A945}
+		{DF1FBA34-B53F-40E1-B873-142ACFA56C95} = {673FBFC8-9865-43E5-853B-089B0420A945}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75F753A9-5C9F-4C3C-AF6B-F9890869BEA2}
