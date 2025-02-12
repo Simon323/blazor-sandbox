@@ -20,4 +20,7 @@ public class LinkApiProxy : ILinkService
 
 	public async Task<LinkDto?> UpdateLinkAsync(LinkEditDto dto) =>
 		await _linkApi.UpdateLinkAsync(dto.Id, dto);
+
+	public Task DeleteLinkAsync(long id, string userId) =>
+		_linkApi.DeleteLinkAsync(id);
 }

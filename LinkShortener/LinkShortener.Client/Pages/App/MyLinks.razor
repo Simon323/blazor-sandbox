@@ -81,7 +81,7 @@ else
 							<button type="button" class="btn btn-sm btn-outline-dark" @onclick="() => _editLink = context">
 								<i class="bx bx-edit me-1"></i><span>Edit</span>
 							</button>
-							<button type="button" class="btn btn-sm btn-outline-danger">
+							<button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => _deleteConfirmationLink = context">
 								<i class="bx bx-trash me-1"></i><span>Delete</span>
 							</button>
 						</div>
@@ -96,11 +96,26 @@ else
 @if (_editLink is not null)
 {
 	<EditLinkModal Link="@_editLink"
-		UserId="@_userId"
-		OnClose="() => _editLink = null"
-		OnSave="OnLinkUpdated" />
+	UserId="@_userId"
+	OnClose="() => _editLink = null"
+	OnSave="OnLinkUpdated" />
 }
 
+@if(_deleteConfirmationLink is not null)
+{
+	<Modal Title="Confirm Delete?" OnClose="() => _deleteConfirmationLink = null">
+		<ChildContent>
+			<p>Do you realy want delete this link?</p>
+			<p>@_deleteConfirmationLink.ShortUrl <small>[@_deleteConfirmationLink.LongUrl]</small></p>
+		</ChildContent>
+		<FooterContent>
+			<div class="d-flex justify-content-between align-items-center w-100">
+				<button type="button" class="btn btn-secondary" @onclick="() => _deleteConfirmationLink = null">Close</button>
+				<button type="button" class="btn btn-danger" @onclick="DeleteLinkAsync">Delete</button>
+			</div>
+		</FooterContent>
+	</Modal>
+}
 
 @code {
 	private const int PageSize = 5;
@@ -128,6 +143,7 @@ else
 	private readonly PaginationState _paginationState = new() { ItemsPerPage = PageSize };
 
 	private LinkDto? _editLink = null;
+	private LinkDto? _deleteConfirmationLink = null;
 
 	private string _userId;
 
@@ -189,6 +205,15 @@ else
 
 		_editLink!.IsActive = updatedLink.IsActive;
 		_editLink = null;
+	}
+
+	private async Task DeleteLinkAsync()
+	{
+		_isLoading = true;
+		await LinkService.DeleteLinkAsync(_deleteConfirmationLink!.Id, _userId);
+		_deleteConfirmationLink = null;
+		_isLoading = false;
+		await _grid!.RefreshDataAsync();
 	}
 
 	enum ShowType

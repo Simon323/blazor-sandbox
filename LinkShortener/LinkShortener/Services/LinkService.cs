@@ -45,6 +45,20 @@ public class LinkService : ILinkService
 		};
 	}
 
+	public async Task DeleteLinkAsync(long id, string userId)
+	{
+		await using var context = _contextFactory.CreateDbContext();
+		var link = await context.Links
+			.Include(l => l.Analytics)
+			.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
+		if (link is null)
+			return;
+		if (link.Analytics.Count > 0)
+			context.LinkAnalytics.RemoveRange(link.Analytics);
+		context.Links.Remove(link);
+		await context.SaveChangesAsync();
+	}
+
 	public async Task<PagedResult<LinkDto>> GetLinksByUserAsync(string userId, int startIndex, int pageSize, bool aciveOnly)
 	{
 		await using var context = _contextFactory.CreateDbContext();
