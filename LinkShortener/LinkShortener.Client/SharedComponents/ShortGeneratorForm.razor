@@ -16,7 +16,7 @@
 			<ValidationMessage For="@(() => _model.LongUrl)" />
 		</div>
 		<div class="mb-3">
-			<button type="submit" class="btn btn-primary" disabled="@_isProcessing">
+			<button type="submit" class="btn btn-main" disabled="@_isProcessing">
 				@(_isProcessing ? "Shortening url" : "Shorten URL")
 			</button>
 		</div>
