@@ -1,0 +1,78 @@
+﻿@page "/"
+
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@* @inject HttpClient Http *@
+@using Microsoft.AspNetCore.SignalR.Client
+@using Radzen
+@using Radzen.Blazor
+@using RealTimeNotifications.Shared
+@implements IAsyncDisposable
+@* @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false)) *@
+
+<PageTitle>Index</PageTitle>
+
+@if (_hubConnection == null)
+{
+    <div class="row">
+        <div class="col-4">
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Group name</RadzenText>
+                <RadzenTextBox @bind-Value="@GroupName" class="w-100"/>
+            </RadzenCard>
+            <RadzenCard>
+                <RadzenButton Click="@Connect" ButtonType="ButtonType.Button" Text="Connect"></RadzenButton>
+            </RadzenCard>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-4">
+            <RadzenCard>
+                <RadzenButton Click="@Notify" ButtonType="ButtonType.Button" Text="Complete task"></RadzenButton>
+                <RadzenButton Click="@ToAll" ButtonType="ButtonType.Button" Text="To all"></RadzenButton>
+            </RadzenCard>
+        </div>
+    </div>
+}
+
+@code {
+    private string GroupName { get; set; } = "";
+
+    private HubConnection? _hubConnection;
+
+    private async Task Connect()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/testhub"))
+            .Build();
+
+        _hubConnection.On<string>(nameof(ITestHub.ReceiveNotification), (message) =>
+        {
+            NotificationService.Notify(NotificationSeverity.Success, "Notification", message);
+        });
+
+        await _hubConnection.StartAsync();
+
+        await _hubConnection.SendAsync(nameof(ITestHub.JoinGroup), GroupName);
+    }
+
+    private async Task Notify()
+    {
+        await _hubConnection.InvokeAsync(nameof(ITestHub.ToGroup), GroupName);
+    }
+
+    private async Task ToAll()
+    {
+        await Task.Delay(2000);
+        // Http.PostAsync("/api/test", null);
+    }
+    
+    public async ValueTask DisposeAsync()
+    {
+		if (_hubConnection is not null)
+            await _hubConnection.DisposeAsync();
+    }
+}

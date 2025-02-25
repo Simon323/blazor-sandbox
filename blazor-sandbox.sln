@@ -37,6 +37,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener.Public", "Lin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkShortener.Data", "LinkShortener.Data\LinkShortener.Data.csproj", "{DF1FBA34-B53F-40E1-B873-142ACFA56C95}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RealTimeNotificationsApp", "RealTimeNotificationsApp", "{BA765941-F393-49BC-850F-73FF0575D8D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeNotifications", "RealTimeNotifications\RealTimeNotifications\RealTimeNotifications.csproj", "{9ECE1A60-72B2-4DE4-B916-8FC771BC634D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeNotifications.Client", "RealTimeNotifications\RealTimeNotifications.Client\RealTimeNotifications.Client.csproj", "{7912CC4F-14D6-44E8-B8FD-632200A17A6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeNotifications.Shared", "RealTimeNotifications.Shared\RealTimeNotifications.Shared.csproj", "{BE5C612B-1C8E-461F-BC81-2E06936F312F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +99,18 @@ Global
 		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF1FBA34-B53F-40E1-B873-142ACFA56C95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ECE1A60-72B2-4DE4-B916-8FC771BC634D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ECE1A60-72B2-4DE4-B916-8FC771BC634D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ECE1A60-72B2-4DE4-B916-8FC771BC634D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ECE1A60-72B2-4DE4-B916-8FC771BC634D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7912CC4F-14D6-44E8-B8FD-632200A17A6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7912CC4F-14D6-44E8-B8FD-632200A17A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7912CC4F-14D6-44E8-B8FD-632200A17A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7912CC4F-14D6-44E8-B8FD-632200A17A6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE5C612B-1C8E-461F-BC81-2E06936F312F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE5C612B-1C8E-461F-BC81-2E06936F312F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE5C612B-1C8E-461F-BC81-2E06936F312F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE5C612B-1C8E-461F-BC81-2E06936F312F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +128,9 @@ Global
 		{4D33E9F2-52A3-420D-B8FD-9D13118B7DC8} = {673FBFC8-9865-43E5-853B-089B0420A945}
 		{1AC44105-0211-4970-9AC3-ECEE4DF01C00} = {673FBFC8-9865-43E5-853B-089B0420A945}
 		{DF1FBA34-B53F-40E1-B873-142ACFA56C95} = {673FBFC8-9865-43E5-853B-089B0420A945}
+		{9ECE1A60-72B2-4DE4-B916-8FC771BC634D} = {BA765941-F393-49BC-850F-73FF0575D8D7}
+		{7912CC4F-14D6-44E8-B8FD-632200A17A6B} = {BA765941-F393-49BC-850F-73FF0575D8D7}
+		{BE5C612B-1C8E-461F-BC81-2E06936F312F} = {BA765941-F393-49BC-850F-73FF0575D8D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75F753A9-5C9F-4C3C-AF6B-F9890869BEA2}
