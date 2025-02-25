@@ -9,5 +9,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddSingleton<CurrencyService>();
+
 
 await builder.Build().RunAsync();

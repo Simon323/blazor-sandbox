@@ -1,0 +1,66 @@
+﻿@page "/currency"
+@using RealTimeNotifications.Client.Services
+@using RealTimeNotifications.Shared.Messages
+
+@inject CurrencyService CurrencyService
+
+<style>
+	table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	th, td {
+		padding: 10px;
+		text-align: left;
+		border: 1px solid #ddd;
+	}
+
+	th {
+		background-color: #f4f4f4;
+	}
+</style>
+
+<h3>Kursy Walut</h3>
+
+@if (currencyRates == null)
+{
+	<p>Ładowanie...</p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Waluta</th>
+				<th>Kupno</th>
+				<th>Sprzedaż</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var rate in currencyRates)
+			{
+				<tr>
+					<td>@rate.Name</td>
+					<td>@rate.BuyPrice</td>
+					<td>@rate.SellPrice</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+	private List<CurrencyRate> currencyRates;
+
+	protected override async Task OnInitializedAsync()
+	{
+		CurrencyService.OnRatesUpdated += rates =>
+		{
+			currencyRates = rates;
+			InvokeAsync(StateHasChanged);
+		};
+
+		await CurrencyService.ConnectAsync();
+	}
+}

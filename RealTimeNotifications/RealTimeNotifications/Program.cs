@@ -18,6 +18,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddSingleton<CurrencyService>();
+
 
 var app = builder.Build();
 
