@@ -1,4 +1,4 @@
-﻿namespace RealTimeNotifications.Shared;
+﻿namespace RealTimeNotifications.Shared.Interfaces;
 
 public interface ITestHub
 {

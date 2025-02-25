@@ -1,4 +1,5 @@
 using Radzen;
+using RealTimeNotifications.Client.Services;
 using RealTimeNotifications.Components;
 using RealTimeNotifications.Endpoints;
 using RealTimeNotifications.Hubs;
@@ -16,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddRadzenComponents();
+builder.Services.AddScoped<SignalRService>();
 
 var app = builder.Build();
 
@@ -42,6 +44,7 @@ app.MapRazorComponents<App>()
 	.AddAdditionalAssemblies(typeof(RealTimeNotifications.Client._Imports).Assembly);
 
 app.MapHub<TestHub>("/testhub");
+app.MapHub<RetroHub>("/retrohub");
 app.MapNotificationsEndpoints();
 
 app.UseSwagger();

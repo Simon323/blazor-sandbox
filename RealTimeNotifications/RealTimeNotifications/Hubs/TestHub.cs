@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using RealTimeNotifications.Shared;
+using RealTimeNotifications.Shared.Interfaces;
 
 namespace RealTimeNotifications.Hubs;
 
