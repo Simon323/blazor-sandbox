@@ -4,23 +4,23 @@
 
 @inject WebSocketService WebSocketService
 
-<h3>WebSocket - Exchange Rate</h3>
+<h3>WebSocket - Kursy Walut</h3>
 
 <button @onclick="Connect" disabled="@isConnected">Connect</button>
 <button @onclick="Disconnect" disabled="@(!isConnected)">Disconnect</button>
 
-@if (currencyRates == null || !isConnected)
+@if (!isConnected)
 {
-    <p>No connection or data unavailable.</p>
+    <p>Brak połączenia lub dane są niedostępne.</p>
 }
 else
 {
     <table class="table">
         <thead>
             <tr>
-                <th>Currency</th>
-                <th>Buy</th>
-                <th>Sell</th>
+                <th>Waluta</th>
+                <th>Kupno</th>
+                <th>Sprzedaż</th>
             </tr>
         </thead>
         <tbody>
@@ -37,7 +37,7 @@ else
 }
 
 @code {
-    private List<CurrencyRate> currencyRates;
+    private List<CurrencyRate> currencyRates = new();
     private bool isConnected;
 
     protected override void OnInitialized()
@@ -47,21 +47,43 @@ else
             currencyRates = rates;
             InvokeAsync(StateHasChanged);
         };
+
+        WebSocketService.OnDisconnected += () =>
+        {
+            isConnected = false;
+            currencyRates.Clear();
+            InvokeAsync(StateHasChanged);
+        };
     }
 
     private async Task Connect()
     {
-        await WebSocketService.ConnectAsync();
-        isConnected = true;
+        try
+        {
+            await WebSocketService.ConnectAsync();
+            isConnected = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd połączenia: {ex.Message}");
+        }
         StateHasChanged();
     }
 
     private async Task Disconnect()
     {
-        await WebSocketService.DisconnectAsync();
-        isConnected = false;
-        currencyRates = null;
+        try
+        {
+            await WebSocketService.DisconnectAsync();
+            isConnected = false;
+            currencyRates.Clear();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd rozłączania: {ex.Message}");
+        }
         StateHasChanged();
     }
 }
+
 
