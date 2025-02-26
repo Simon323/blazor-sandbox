@@ -8,29 +8,30 @@ namespace WebsocketBase.Handlers;
 
 public class WebSocketHandler
 {
-	private static readonly ConcurrentDictionary<WebSocket, bool> _clients = new();
+	private static readonly ConcurrentDictionary<WebSocket, CancellationTokenSource> _clients = new();
 	private static readonly Random _random = new();
 
 	public async Task HandleWebSocketAsync(HttpContext context)
 	{
 		if (context.WebSockets.IsWebSocketRequest)
 		{
-			using WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-			_clients.TryAdd(webSocket, true);
+			var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+			var cts = new CancellationTokenSource();
+			_clients.TryAdd(webSocket, cts);
+
+			Console.WriteLine("🟢 Nowe połączenie WebSocket!");
 
 			try
 			{
-				await SendCurrencyRatesAsync(webSocket);
+				await SendCurrencyRatesAsync(webSocket, cts.Token);
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"WebSocket error: {ex.Message}");
+				Console.WriteLine($"❌ WebSocket error: {ex.Message}");
 			}
 			finally
 			{
-				_clients.TryRemove(webSocket, out _);
-				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Connection closed", CancellationToken.None);
-				webSocket.Dispose();
+				await DisconnectClient(webSocket);
 			}
 		}
 		else
@@ -39,17 +40,49 @@ public class WebSocketHandler
 		}
 	}
 
-	private async Task SendCurrencyRatesAsync(WebSocket webSocket)
+	private async Task SendCurrencyRatesAsync(WebSocket webSocket, CancellationToken token)
 	{
-		while (webSocket.State == WebSocketState.Open)
+		while (webSocket.State == WebSocketState.Open && !token.IsCancellationRequested)
 		{
 			var rates = GenerateRandomRates();
 			var json = JsonSerializer.Serialize(rates);
-
 			var buffer = Encoding.UTF8.GetBytes(json);
-			await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
 
-			await Task.Delay(5000); // Update every 5 seconds
+			try
+			{
+				await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, token);
+			}
+			catch (WebSocketException)
+			{
+				Console.WriteLine("⚠ WebSocket zamknięty - przerywam wysyłanie.");
+				break;
+			}
+
+			try
+			{
+				// Jeśli klient się rozłączył, pętla zostanie natychmiast przerwana
+				await Task.Delay(5000, token);
+			}
+			catch (TaskCanceledException)
+			{
+				break; // Natychmiast przerywamy pętlę
+			}
+		}
+	}
+
+	public async Task DisconnectClient(WebSocket webSocket)
+	{
+		if (_clients.TryRemove(webSocket, out var cts))
+		{
+			cts.Cancel(); // Anuluj `Task.Delay`
+			cts.Dispose();
+
+			if (webSocket.State == WebSocketState.Open)
+			{
+				await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnected", CancellationToken.None);
+			}
+
+			Console.WriteLine("🔴 Klient WebSocket rozłączony.");
 		}
 	}
 

@@ -12,6 +12,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<CurrencyService>();
 builder.Services.AddSingleton<WebSocketService>();
 builder.Services.AddSingleton<WebSocketHandler>();
+builder.Services.AddSingleton<WebSocketProxyHandler>();
 
 var app = builder.Build();
 
@@ -38,8 +39,13 @@ app.MapRazorComponents<App>()
 	.AddAdditionalAssemblies(typeof(WebsocketBase.Client._Imports).Assembly);
 
 app.UseWebSockets();
-app.UseRouting();
+
 app.Map("/ws", async (HttpContext context, WebSocketHandler handler) =>
+{
+	await handler.HandleWebSocketAsync(context);
+});
+
+app.Map("/proxy-ws", async (HttpContext context, WebSocketProxyHandler handler) =>
 {
 	await handler.HandleWebSocketAsync(context);
 });
