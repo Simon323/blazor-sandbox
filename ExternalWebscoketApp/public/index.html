@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Rates</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Currency Rates</h1>
+    <label for="currencies">Select currencies (comma separated):</label>
+    <input type="text" id="currencies" placeholder="e.g., USD,EUR,JPY">
+    <button onclick="requestCurrencies()">Request</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Buy Price</th>
+                <th>Sell Price</th>
+            </tr>
+        </thead>
+        <tbody id="currencyTableBody">
+            <!-- Currency data will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        // const ws = new WebSocket('wss://localhost:7223/ws');
+        const ws = new WebSocket('ws://localhost:8080');
+
+        ws.onmessage = (event) => {
+            const currencies = JSON.parse(event.data);
+            const tableBody = document.getElementById('currencyTableBody');
+            tableBody.innerHTML = '';
+
+            currencies.forEach(currency => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${currency.name}</td>
+                    <td>${currency.buyPrice}</td>
+                    <td>${currency.sellPrice}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+        };
+
+        function requestCurrencies() {
+            const input = document.getElementById('currencies').value;
+            const requestedCurrencies = input.split(',').map(currency => currency.trim());
+            ws.send(JSON.stringify(requestedCurrencies));
+        }
+    </script>
+</body>
+</html>
