@@ -1,4 +1,5 @@
 ﻿@page "/currency"
+@using WebsocketBase.Client.Services
 @using WebsocketBase.Shared.Messages
 
 @inject CurrencyService CurrencyService
@@ -20,20 +21,20 @@
 	}
 </style>
 
-<h3>Kursy Walut</h3>
+<h3>Exchange rate</h3>
 
 @if (currencyRates == null)
 {
-	<p>Ładowanie...</p>
+	<p>Loading...</p>
 }
 else
 {
 	<table class="table">
 		<thead>
 			<tr>
-				<th>Waluta</th>
-				<th>Kupno</th>
-				<th>Sprzedaż</th>
+				<th>Currency</th>
+				<th>Buy</th>
+				<th>Sell</th>
 			</tr>
 		</thead>
 		<tbody>

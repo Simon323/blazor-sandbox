@@ -1,0 +1,67 @@
+﻿@page "/currencyextended"
+@using WebsocketBase.Client.Services
+@using WebsocketBase.Shared.Messages
+
+@inject WebSocketService WebSocketService
+
+<h3>WebSocket - Exchange Rate</h3>
+
+<button @onclick="Connect" disabled="@isConnected">Connect</button>
+<button @onclick="Disconnect" disabled="@(!isConnected)">Disconnect</button>
+
+@if (currencyRates == null || !isConnected)
+{
+    <p>No connection or data unavailable.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Buy</th>
+                <th>Sell</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rate in currencyRates)
+            {
+                <tr>
+                    <td>@rate.Name</td>
+                    <td>@rate.BuyPrice</td>
+                    <td>@rate.SellPrice</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CurrencyRate> currencyRates;
+    private bool isConnected;
+
+    protected override void OnInitialized()
+    {
+        WebSocketService.OnRatesUpdated += rates =>
+        {
+            currencyRates = rates;
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    private async Task Connect()
+    {
+        await WebSocketService.ConnectAsync();
+        isConnected = true;
+        StateHasChanged();
+    }
+
+    private async Task Disconnect()
+    {
+        await WebSocketService.DisconnectAsync();
+        isConnected = false;
+        currencyRates = null;
+        StateHasChanged();
+    }
+}
+

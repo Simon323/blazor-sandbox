@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using WebsocketBase.Shared.Messages;
 
-namespace WebsocketBase.Client;
+namespace WebsocketBase.Client.Services;
 
 public class CurrencyService : IAsyncDisposable
 {

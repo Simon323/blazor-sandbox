@@ -1,4 +1,4 @@
-using WebsocketBase.Client;
+using WebsocketBase.Client.Services;
 using WebsocketBase.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +9,7 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddSingleton<CurrencyService>();
+builder.Services.AddSingleton<WebSocketService>();
 
 var app = builder.Build();
 
