@@ -1,5 +1,6 @@
 using WebsocketBase.Client.Services;
 using WebsocketBase.Components;
+using WebsocketBase.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<CurrencyService>();
 builder.Services.AddSingleton<WebSocketService>();
+builder.Services.AddSingleton<WebSocketHandler>();
 
 var app = builder.Build();
 
@@ -34,5 +36,12 @@ app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode()
 	.AddInteractiveWebAssemblyRenderMode()
 	.AddAdditionalAssemblies(typeof(WebsocketBase.Client._Imports).Assembly);
+
+app.UseWebSockets();
+app.UseRouting();
+app.Map("/ws", async (HttpContext context, WebSocketHandler handler) =>
+{
+	await handler.HandleWebSocketAsync(context);
+});
 
 app.Run();
