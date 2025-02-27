@@ -1,14 +1,10 @@
 using System.Net.WebSockets;
-using System.Text;
-using WebsocketBase.Shared.Messages;
 
-namespace WebsocketBase.Handlers
+namespace WebsocketBase.Handlers.Proxy
 {
-	public class WebSocketCurrencyProxyHandler
+	public class WebSocketCurrencyIndividualProxyHandler
 	{
 		private static readonly List<WebSocket> _connections = new List<WebSocket>();
-		private static Task _proxyTask;
-		private static CancellationTokenSource _proxyCts;
 
 		public async Task HandleWebSocketAsync(HttpContext context)
 		{
@@ -18,31 +14,15 @@ namespace WebsocketBase.Handlers
 				_connections.Add(webSocket);
 				Console.WriteLine($"User connected. Total users: {_connections.Count}");
 
-				if (_proxyTask == null || _proxyTask.IsCompleted)
-				{
-					_proxyCts = new CancellationTokenSource();
-					_proxyTask = ProxyCurrencyRates(_proxyCts.Token);
-				}
+				var cts = new CancellationTokenSource();
+				var proxyTask = ProxyCurrencyRates(webSocket, cts.Token);
+				var receiveTask = ReceiveMessages(webSocket, cts);
 
-				var receiveTask = ReceiveMessages(webSocket);
+				await Task.WhenAny(proxyTask, receiveTask);
 
-				await receiveTask;
-
+				cts.Cancel();
 				_connections.Remove(webSocket);
 				Console.WriteLine($"User disconnected. Total users: {_connections.Count}");
-
-				if (_connections.Count == 0)
-				{
-					_proxyCts.Cancel();
-					try
-					{
-						await _proxyTask;
-					}
-					catch (TaskCanceledException)
-					{
-						// Task was canceled, no further action needed
-					}
-				}
 
 				if (webSocket.State != WebSocketState.Closed)
 				{
@@ -55,25 +35,22 @@ namespace WebsocketBase.Handlers
 			}
 		}
 
-		async Task ProxyCurrencyRates(CancellationToken token)
+		async Task ProxyCurrencyRates(WebSocket clientWebSocket, CancellationToken token)
 		{
-			using var clientWebSocket = new ClientWebSocket();
-			await clientWebSocket.ConnectAsync(new Uri("ws://localhost:8080"), token);
+			using var serverWebSocket = new ClientWebSocket();
+			await serverWebSocket.ConnectAsync(new Uri("ws://localhost:8080"), token);
 
 			var buffer = new byte[1024];
-			while (clientWebSocket.State == WebSocketState.Open && !token.IsCancellationRequested)
+			while (serverWebSocket.State == WebSocketState.Open && !token.IsCancellationRequested)
 			{
 				try
 				{
-					var result = await clientWebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+					var result = await serverWebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 					if (result.MessageType == WebSocketMessageType.Text)
 					{
-						foreach (var socket in _connections)
+						if (clientWebSocket.State == WebSocketState.Open)
 						{
-							if (socket.State == WebSocketState.Open)
-							{
-								await socket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), WebSocketMessageType.Text, true, token);
-							}
+							await clientWebSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), WebSocketMessageType.Text, true, token);
 						}
 					}
 					else if (result.MessageType == WebSocketMessageType.Close)
@@ -94,7 +71,7 @@ namespace WebsocketBase.Handlers
 			}
 		}
 
-		async Task ReceiveMessages(WebSocket socket)
+		async Task ReceiveMessages(WebSocket socket, CancellationTokenSource cts)
 		{
 			var buffer = new byte[1024];
 			while (socket.State == WebSocketState.Open)
@@ -102,6 +79,7 @@ namespace WebsocketBase.Handlers
 				var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 				if (result.MessageType == WebSocketMessageType.Close)
 				{
+					cts.Cancel();
 					break;
 				}
 			}

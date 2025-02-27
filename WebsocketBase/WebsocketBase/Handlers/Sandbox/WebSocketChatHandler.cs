@@ -2,7 +2,7 @@
 using System.Net.WebSockets;
 using System.Text;
 
-namespace WebsocketBase.Handlers;
+namespace WebsocketBase.Handlers.Sandbox;
 
 public class WebSocketChatHandler
 {

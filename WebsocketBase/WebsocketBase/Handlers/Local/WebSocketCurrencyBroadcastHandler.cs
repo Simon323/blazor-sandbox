@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using WebsocketBase.Shared.Messages;
 
-namespace WebsocketBase.Handlers
+namespace WebsocketBase.Handlers.Local
 {
 	public class WebSocketCurrencyBroadcastHandler
 	{

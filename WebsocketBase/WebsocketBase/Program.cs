@@ -1,6 +1,8 @@
 using WebsocketBase.Client.Services;
 using WebsocketBase.Components;
-using WebsocketBase.Handlers;
+using WebsocketBase.Handlers.Local;
+using WebsocketBase.Handlers.Proxy;
+using WebsocketBase.Handlers.Sandbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +13,10 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<CurrencyService>();
 builder.Services.AddSingleton<WebSocketService>();
-builder.Services.AddSingleton<WebSocketProxyHandler>();
 builder.Services.AddSingleton<WebSocketCurrencyBroadcastHandler>();
 builder.Services.AddSingleton<WebSocketCurrencyIndividualHandler>();
 builder.Services.AddSingleton<WebSocketChatHandler>();
-builder.Services.AddSingleton<WebSocketCurrencyProxyHandler>();
+builder.Services.AddSingleton<WebSocketCurrencyGroupProxyHandler>();
 builder.Services.AddSingleton<WebSocketCurrencyIndividualProxyHandler>();
 
 var app = builder.Build();
@@ -44,21 +45,19 @@ app.MapRazorComponents<App>()
 
 app.UseWebSockets();
 
-app.Map("/proxy-ws", async (HttpContext context, WebSocketProxyHandler handler) =>
-{
-	await handler.HandleWebSocketAsync(context);
-});
-
+// Webapi provider websocket endpoint
 app.Map("/ws-currency", async (HttpContext context, WebSocketCurrencyBroadcastHandler handler) =>
 {
 	await handler.HandleWebSocketAsync(context);
 });
 
-app.Map("/ws-currency-proxy", async (HttpContext context, WebSocketCurrencyProxyHandler handler) =>
+// All clients share the same connection to the server
+app.Map("/ws-currency-group-proxy", async (HttpContext context, WebSocketCurrencyGroupProxyHandler handler) =>
 {
 	await handler.HandleWebSocketAsync(context);
 });
 
+// Each client has individual connection to the server
 app.Map("/ws-currency-individual-proxy", async (HttpContext context, WebSocketCurrencyIndividualProxyHandler handler) =>
 {
 	await handler.HandleWebSocketAsync(context);
