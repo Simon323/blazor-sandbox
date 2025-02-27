@@ -29,11 +29,39 @@
         .decrease {
             color: red;
         }
+        .connect-btn {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .connect-btn:disabled {
+            background-color: lightgreen;
+            cursor: not-allowed;
+        }
+        .disconnect-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .disconnect-btn:disabled {
+            background-color: lightcoral;
+            cursor: not-allowed;
+        }
+        .status-disconnected {
+            color: red;
+        }
+        .status-connected {
+            color: green;
+        }
     </style>
 </head>
 <body>
     <h1>Currency Rates</h1>
-    <p id="status">Status: Disconnected</p>
+    <p id="status" class="status-disconnected">Status: Disconnected</p>
     <label for="connectionType">Connection Type:</label>
     <select id="connectionType" onchange="toggleConnectionType()">
         <option value="predefined">Predefined</option>
@@ -44,8 +72,8 @@
         <label for="predefinedWs">Select WebSocket:</label>
         <select id="predefinedWs">
             <option value="wss://localhost:7223/ws-currency">wss://localhost:7223/ws-currency</option>
+            <option value="wss://localhost:7223/ws-currency-proxy">wss://localhost:7223/ws-currency-proxy</option>
             <option value="ws://localhost:8080">ws://localhost:8080</option>
-            <option value="wss://localhost:7223/ws">wss://localhost:7223/ws</option>
         </select>
     </div>
     <div id="customConnection" style="display: none;">
@@ -53,11 +81,11 @@
         <input type="text" id="wsAddress" placeholder="wss://your-custom-websocket" value="wss://localhost:7223/ws-currency">
     </div>
     <br>
-    <button id="connectBtn" onclick="connectWebSocket()">Connect</button>
-    <button id="disconnectBtn" onclick="disconnectWebSocket()" disabled>Disconnect</button>
+    <button id="connectBtn" class="connect-btn" onclick="connectWebSocket()">Connect</button>
+    <button id="disconnectBtn" class="disconnect-btn" onclick="disconnectWebSocket()" disabled>Disconnect</button>
     <p id="averageUpdateInterval">Average Update Interval: N/A</p>
     <p id="timeSinceLastUpdate">Time Since Last Update: N/A</p>
-    <br><br>
+    <br>
     <label for="currencies">Select currencies (comma separated):</label>
     <input type="text" id="currencies" placeholder="e.g., USD,EUR,JPY">
     <button onclick="requestCurrencies()">Request</button>
@@ -164,6 +192,8 @@
 
             ws.onopen = () => {
                 document.getElementById('status').innerText = 'Status: Connected';
+                document.getElementById('status').classList.remove('status-disconnected');
+                document.getElementById('status').classList.add('status-connected');
                 document.getElementById('connectBtn').disabled = true;
                 document.getElementById('disconnectBtn').disabled = false;
                 document.getElementById('averageUpdateInterval').innerText = 'Average Update Interval: Calculating...';
@@ -174,6 +204,8 @@
 
             ws.onclose = () => {
                 document.getElementById('status').innerText = 'Status: Disconnected';
+                document.getElementById('status').classList.remove('status-connected');
+                document.getElementById('status').classList.add('status-disconnected');
                 document.getElementById('connectBtn').disabled = false;
                 document.getElementById('disconnectBtn').disabled = true;
                 clearInterval(updateInterval);

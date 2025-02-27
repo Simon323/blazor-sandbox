@@ -15,6 +15,7 @@ builder.Services.AddSingleton<WebSocketProxyHandler>();
 builder.Services.AddSingleton<WebSocketCurrencyBroadcastHandler>();
 builder.Services.AddSingleton<WebSocketCurrencyIndividualHandler>();
 builder.Services.AddSingleton<WebSocketChatHandler>();
+builder.Services.AddSingleton<WebSocketCurrencyProxyHandler>();
 
 var app = builder.Build();
 
@@ -48,6 +49,11 @@ app.Map("/proxy-ws", async (HttpContext context, WebSocketProxyHandler handler) 
 });
 
 app.Map("/ws-currency", async (HttpContext context, WebSocketCurrencyBroadcastHandler handler) =>
+{
+	await handler.HandleWebSocketAsync(context);
+});
+
+app.Map("/ws-currency-proxy", async (HttpContext context, WebSocketCurrencyProxyHandler handler) =>
 {
 	await handler.HandleWebSocketAsync(context);
 });
