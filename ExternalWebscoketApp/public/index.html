@@ -16,10 +16,47 @@
         th {
             background-color: #f2f2f2;
         }
+        .flash {
+            animation: flash 0.5s;
+        }
+        @keyframes flash {
+            0% { background-color: aqua; }
+            100% { background-color: transparent; }
+        }
+        .increase {
+            color: green;
+        }
+        .decrease {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <h1>Currency Rates</h1>
+    <p id="status">Status: Disconnected</p>
+    <label for="connectionType">Connection Type:</label>
+    <select id="connectionType" onchange="toggleConnectionType()">
+        <option value="predefined">Predefined</option>
+        <option value="custom">Custom</option>
+    </select>
+    <br>
+    <div id="predefinedConnections">
+        <label for="predefinedWs">Select WebSocket:</label>
+        <select id="predefinedWs">
+            <option value="wss://localhost:7223/ws-currency">wss://localhost:7223/ws-currency</option>
+            <option value="ws://localhost:8080">ws://localhost:8080</option>
+        </select>
+    </div>
+    <div id="customConnection" style="display: none;">
+        <label for="wsAddress">WebSocket Address:</label>
+        <input type="text" id="wsAddress" placeholder="wss://your-custom-websocket" value="wss://localhost:7223/ws-currency">
+    </div>
+    <br>
+    <button id="connectBtn" onclick="connectWebSocket()">Connect</button>
+    <button id="disconnectBtn" onclick="disconnectWebSocket()" disabled>Disconnect</button>
+    <p id="averageUpdateInterval">Average Update Interval: N/A</p>
+    <p id="timeSinceLastUpdate">Time Since Last Update: N/A</p>
+    <br><br>
     <label for="currencies">Select currencies (comma separated):</label>
     <input type="text" id="currencies" placeholder="e.g., USD,EUR,JPY">
     <button onclick="requestCurrencies()">Request</button>
@@ -35,39 +72,132 @@
             <!-- Currency data will be inserted here -->
         </tbody>
     </table>
+    <h2>Update Logs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Update Time</th>
+                <th>Interval Since Last Update (ms)</th>
+                <th>Change (ms)</th>
+            </tr>
+        </thead>
+        <tbody id="logTableBody">
+            <!-- Log data will be inserted here -->
+        </tbody>
+    </table>
 
     <script>
-        // const ws = new WebSocket('wss://localhost:7223/ws');
-        const ws = new WebSocket('ws://localhost:8080');
+        let ws;
+        let updateTimes = [];
+        let lastUpdateTime;
+        let updateInterval;
 
-        ws.onmessage = (event) => {
-            const currencies = JSON.parse(event.data);
-            const tableBody = document.getElementById('currencyTableBody');
-            tableBody.innerHTML = '';
+        function toggleConnectionType() {
+            const connectionType = document.getElementById('connectionType').value;
+            if (connectionType === 'predefined') {
+                document.getElementById('predefinedConnections').style.display = 'block';
+                document.getElementById('customConnection').style.display = 'none';
+            } else {
+                document.getElementById('predefinedConnections').style.display = 'none';
+                document.getElementById('customConnection').style.display = 'block';
+            }
+        }
 
-            currencies.forEach(currency => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${currency.name}</td>
-                    <td>${currency.buyPrice}</td>
-                    <td>${currency.sellPrice}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        };
+        function connectWebSocket() {
+            const connectionType = document.getElementById('connectionType').value;
+            let wsAddress;
+            if (connectionType === 'predefined') {
+                wsAddress = document.getElementById('predefinedWs').value;
+            } else {
+                wsAddress = document.getElementById('wsAddress').value;
+            }
+            ws = new WebSocket(wsAddress);
+            updateTimes = [];
+            lastUpdateTime = null;
+            document.getElementById('logTableBody').innerHTML = '';
 
-        ws.onopen = () => {
-            console.log('Connected to WebSocket server');
-        };
+            ws.onmessage = (event) => {
+                const currencies = JSON.parse(event.data);
+                const tableBody = document.getElementById('currencyTableBody');
+                tableBody.innerHTML = '';
 
-        ws.onclose = () => {
-            console.log('Disconnected from WebSocket server');
-        };
+                currencies.forEach(currency => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${currency.name}</td>
+                        <td>${currency.buyPrice}</td>
+                        <td>${currency.sellPrice}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Add flash effect
+                tableBody.classList.add('flash');
+                setTimeout(() => {
+                    tableBody.classList.remove('flash');
+                }, 500);
+
+                // Calculate average update interval
+                const currentTime = new Date().getTime();
+                if (lastUpdateTime) {
+                    const interval = currentTime - lastUpdateTime;
+                    updateTimes.push(interval);
+                    const averageInterval = updateTimes.reduce((a, b) => a + b, 0) / updateTimes.length;
+                    document.getElementById('averageUpdateInterval').innerText = `Average Update Interval: ${averageInterval.toFixed(2)} ms`;
+
+                    // Log update time and interval
+                    const logTableBody = document.getElementById('logTableBody');
+                    const logRow = document.createElement('tr');
+                    const change = updateTimes.length > 1 ? interval - updateTimes[updateTimes.length - 2] : 0;
+                    const changeClass = change > 0 ? 'increase' : 'decrease';
+                    const changeSymbol = change > 0 ? '↑' : '↓';
+                    logRow.innerHTML = `
+                        <td>${new Date(currentTime).toLocaleTimeString()}</td>
+                        <td>${interval}</td>
+                        <td class="${changeClass}">${changeSymbol} ${Math.abs(change)} ms</td>
+                    `;
+                    logTableBody.insertBefore(logRow, logTableBody.firstChild);
+                }
+                lastUpdateTime = currentTime;
+            };
+
+            ws.onopen = () => {
+                document.getElementById('status').innerText = 'Status: Connected';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('averageUpdateInterval').innerText = 'Average Update Interval: Calculating...';
+                document.getElementById('timeSinceLastUpdate').innerText = 'Time Since Last Update: 0 ms';
+                updateInterval = setInterval(updateTimeSinceLastUpdate, 1000);
+                console.log('Connected to WebSocket server');
+            };
+
+            ws.onclose = () => {
+                document.getElementById('status').innerText = 'Status: Disconnected';
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                clearInterval(updateInterval);
+                console.log('Disconnected from WebSocket server');
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+        }
 
         function requestCurrencies() {
             const input = document.getElementById('currencies').value;
             const requestedCurrencies = input.split(',').map(currency => currency.trim());
             ws.send(JSON.stringify(requestedCurrencies));
+        }
+
+        function updateTimeSinceLastUpdate() {
+            if (lastUpdateTime) {
+                const currentTime = new Date().getTime();
+                const timeSinceLastUpdate = currentTime - lastUpdateTime;
+                document.getElementById('timeSinceLastUpdate').innerText = `Time Since Last Update: ${timeSinceLastUpdate} ms`;
+            }
         }
     </script>
 </body>

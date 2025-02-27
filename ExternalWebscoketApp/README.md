@@ -1,5 +1,6 @@
 npx wscat -c wss://ws.postman-echo.com/raw
 npx wscat -c ws://localhost:5183/ws
+npx wscat -c ws://localhost:8080
 
 wss://echo.websocket.org
 

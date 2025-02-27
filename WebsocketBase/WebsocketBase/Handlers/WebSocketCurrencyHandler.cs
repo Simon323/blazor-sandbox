@@ -7,22 +7,37 @@ namespace WebsocketBase.Handlers
 {
 	public class WebSocketCurrencyHandler
 	{
+		private static readonly List<WebSocket> _connections = new List<WebSocket>();
+		private static readonly Random _random = new Random();
+		private static Task _broadcastTask;
+		private static CancellationTokenSource _broadcastCts;
+
 		public async Task HandleWebSocketAsync(HttpContext context)
 		{
 			if (context.WebSockets.IsWebSocketRequest)
 			{
 				using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-				var cts = new CancellationTokenSource();
+				_connections.Add(webSocket);
+				Console.WriteLine($"User connected. Total users: {_connections.Count}");
 
-				// Uruchamiamy równolegle wysy³anie i odbieranie
-				var sendTask = SendCurrencyRates(webSocket, cts.Token);
-				var receiveTask = ReceiveMessages(webSocket, cts.Token);
+				if (_broadcastTask == null || _broadcastTask.IsCompleted)
+				{
+					_broadcastCts = new CancellationTokenSource();
+					_broadcastTask = BroadcastCurrencyRates(_broadcastCts.Token);
+				}
 
-				// Czekamy a¿ jedno z zadañ siê zakoñczy (np. klient wysy³a close frame)
-				await Task.WhenAny(sendTask, receiveTask);
+				var receiveTask = ReceiveMessages(webSocket);
 
-				// Anulujemy drugie zadanie
-				cts.Cancel();
+				await receiveTask;
+
+				_connections.Remove(webSocket);
+				Console.WriteLine($"User disconnected. Total users: {_connections.Count}");
+
+				if (_connections.Count == 0)
+				{
+					_broadcastCts.Cancel();
+					await _broadcastTask;
+				}
 
 				if (webSocket.State != WebSocketState.Closed)
 				{
@@ -35,20 +50,21 @@ namespace WebsocketBase.Handlers
 			}
 		}
 
-		async Task SendCurrencyRates(WebSocket socket, CancellationToken token)
+		async Task BroadcastCurrencyRates(CancellationToken token)
 		{
-			while (socket.State == WebSocketState.Open && !token.IsCancellationRequested)
+			while (!token.IsCancellationRequested)
 			{
-				var currencyRate = new CurrencyRate
-				{
-					Name = "USD/EUR",
-					BuyPrice = "0.92",
-					SellPrice = "0.93"
-				};
-
-				var json = JsonSerializer.Serialize(currencyRate);
+				var currencyRates = GenerateRandomRates();
+				var json = JsonSerializer.Serialize(currencyRates);
 				var buffer = Encoding.UTF8.GetBytes(json);
-				await socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, token);
+
+				foreach (var socket in _connections)
+				{
+					if (socket.State == WebSocketState.Open)
+					{
+						await socket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, token);
+					}
+				}
 
 				try
 				{
@@ -61,17 +77,35 @@ namespace WebsocketBase.Handlers
 			}
 		}
 
-		async Task ReceiveMessages(WebSocket socket, CancellationToken token)
+		async Task ReceiveMessages(WebSocket socket)
 		{
 			var buffer = new byte[1024];
-			while (socket.State == WebSocketState.Open && !token.IsCancellationRequested)
+			while (socket.State == WebSocketState.Open)
 			{
-				var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+				var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 				if (result.MessageType == WebSocketMessageType.Close)
 				{
 					break;
 				}
 			}
+		}
+
+		private List<CurrencyRate> GenerateRandomRates()
+		{
+			var currencies = new List<string> { "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "SEK", "NZD" };
+			var rates = new List<CurrencyRate>();
+
+			foreach (var currency in currencies)
+			{
+				rates.Add(new CurrencyRate
+				{
+					Name = currency,
+					BuyPrice = (_random.Next(100, 200) / 100.0).ToString("0.00"),
+					SellPrice = (_random.Next(100, 200) / 100.0).ToString("0.00")
+				});
+			}
+
+			return rates;
 		}
 	}
 }
