@@ -5,7 +5,7 @@ using WebsocketBase.Shared.Messages;
 
 namespace WebsocketBase.Handlers
 {
-	public class WebSocketCurrencyHandler
+	public class WebSocketCurrencyBroadcastHandler
 	{
 		private static readonly List<WebSocket> _connections = new List<WebSocket>();
 		private static readonly Random _random = new Random();
