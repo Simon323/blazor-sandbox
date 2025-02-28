@@ -1,12 +1,17 @@
-﻿using InteractiveApp.Client.Extensions;
+﻿using InteractiveApp.Client;
+using InteractiveApp.Client.Extensions;
 using InteractiveApp.Client.Interfaces;
 using InteractiveApp.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace InteractiveApp.Components.Account;
 
-public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClaimPrincipailSync
+public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClaimPrincipailSync, IDisposable
 {
 	private readonly IHttpContextAccessor _httpContextAccessor;
 	private readonly IUserRequirementsService _userRequirementsService;
@@ -14,11 +19,25 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 	private AuthenticationState? _authenticationState;
 	public AuthenticationState? AuthenticationState => _authenticationState;
 
+	// Persistent
+	private readonly PersistingComponentStateSubscription subscription;
+	private readonly PersistentComponentState state;
+	private Task<AuthenticationState>? authenticationStateTask;
+	private readonly IdentityOptions options;
+
 	public ModAuthenticationStateProvider(
-		IHttpContextAccessor httpContextAccessor, IUserRequirementsService userRequirementsService)
+		IHttpContextAccessor httpContextAccessor,
+		IUserRequirementsService userRequirementsService,
+		PersistentComponentState persistentComponentState,
+		IOptions<IdentityOptions> optionsAccessor)
 	{
 		_httpContextAccessor = httpContextAccessor;
 		_userRequirementsService = userRequirementsService;
+
+		state = persistentComponentState;
+		options = optionsAccessor.Value;
+		AuthenticationStateChanged += OnAuthenticationStateChanged;
+		subscription = state.RegisterOnPersisting(OnPersistingAsync, Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveWebAssembly);
 	}
 
 	public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -86,5 +105,64 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 		existingClaims.AddRange(newRoleClaims);
 
 		return existingClaims;
+	}
+
+	// WASM
+	private void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+	{
+		authenticationStateTask = task;
+	}
+
+	private async Task OnPersistingAsync()
+	{
+		var principal = _authenticationState.User;
+
+		if (principal.Identity?.IsAuthenticated == true)
+		{
+			var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
+			var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+
+			if (userId != null && email != null)
+			{
+				state.PersistAsJson(nameof(UserInfo), new UserInfo
+				{
+					UserId = userId,
+					Email = email,
+				});
+			}
+		}
+	}
+
+	//OLD
+	private async Task OnPersistingAsyncOLD()
+	{
+		if (authenticationStateTask is null)
+		{
+			throw new UnreachableException($"Authentication state not set in {nameof(OnPersistingAsync)}().");
+		}
+
+		var authenticationState = await authenticationStateTask;
+		var principal = authenticationState.User;
+
+		if (principal.Identity?.IsAuthenticated == true)
+		{
+			var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
+			var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
+
+			if (userId != null && email != null)
+			{
+				state.PersistAsJson(nameof(UserInfo), new UserInfo
+				{
+					UserId = userId,
+					Email = email,
+				});
+			}
+		}
+	}
+
+	public void Dispose()
+	{
+		subscription.Dispose();
+		AuthenticationStateChanged -= OnAuthenticationStateChanged;
 	}
 }
