@@ -23,6 +23,8 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, ModAuthenticationStateProvider>();
 builder.Services.AddScoped<ModAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<ModAuthenticationStateProvider>());
+builder.Services.AddScoped<IClaimPrincipailSync>(provider => provider.GetRequiredService<ModAuthenticationStateProvider>());
+builder.Services.AddScoped<IUserRequirementsService, UserRequirementsService>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -78,8 +80,6 @@ builder.Services.AddTransient<IIdentityUserService, IdentityUserService>();
 //		}
 //	};
 //});
-
-
 
 var app = builder.Build();
 

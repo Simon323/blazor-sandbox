@@ -1,19 +1,24 @@
 ﻿using InteractiveApp.Client.Extensions;
+using InteractiveApp.Client.Interfaces;
+using InteractiveApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
 namespace InteractiveApp.Components.Account;
 
-public class ModAuthenticationStateProvider : AuthenticationStateProvider
+public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClaimPrincipailSync
 {
 	private readonly IHttpContextAccessor _httpContextAccessor;
+	private readonly IUserRequirementsService _userRequirementsService;
 
 	private AuthenticationState? _authenticationState;
 	public AuthenticationState? AuthenticationState => _authenticationState;
 
-	public ModAuthenticationStateProvider(IHttpContextAccessor httpContextAccessor)
+	public ModAuthenticationStateProvider(
+		IHttpContextAccessor httpContextAccessor, IUserRequirementsService userRequirementsService)
 	{
 		_httpContextAccessor = httpContextAccessor;
+		_userRequirementsService = userRequirementsService;
 	}
 
 	public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -58,6 +63,7 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider
 			var userId = currentPrincipal.GetUserId();
 			if (userId is not null)
 			{
+				var roles = await _userRequirementsService.GetUserRoles(userId);
 				var currentIdentity = currentPrincipal.Identity as ClaimsIdentity;
 
 				if (currentIdentity == null)
@@ -65,7 +71,7 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider
 					currentIdentity = new ClaimsIdentity();
 				}
 
-				var existingClaims = UpdateClaims(currentIdentity.Claims.ToList());
+				var existingClaims = UpdateClaims(currentIdentity.Claims.ToList(), roles);
 				var updatedIdentity = new ClaimsIdentity(existingClaims, currentIdentity.AuthenticationType);
 				var newPrincipal = new ClaimsPrincipal(updatedIdentity);
 
@@ -76,12 +82,15 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider
 		}
 	}
 
-	private static List<Claim> UpdateClaims(List<Claim> existingClaims)
+	private static List<Claim> UpdateClaims(List<Claim> existingClaims, List<string> roles)
 	{
-		if (!existingClaims.Any(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" && c.Value == "nova"))
-		{
-			existingClaims.Add(new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "nova"));
-		}
+		var userRoles = roles;
+
+		existingClaims.RemoveAll(c => c.Type == ClaimTypes.Role);
+
+		var newRoleClaims = userRoles.Distinct().Select(role => new Claim(ClaimTypes.Role, role));
+		existingClaims.AddRange(newRoleClaims);
+
 		return existingClaims;
 	}
 }

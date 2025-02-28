@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿@using InteractiveApp.Client.Interfaces
+
+@inject IClaimPrincipailSync ClaimPrincipialSync
+
+<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
             <NotAuthorized>
@@ -8,3 +12,10 @@
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
+@code {
+    private async Task HandleNavigateAsync(NavigationContext args)
+    {
+        await ClaimPrincipialSync.RefreshUserRolesAsync();
+    }
+}
