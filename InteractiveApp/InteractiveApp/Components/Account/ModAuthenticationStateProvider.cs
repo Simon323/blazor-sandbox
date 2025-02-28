@@ -23,18 +23,13 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 
 	public override async Task<AuthenticationState> GetAuthenticationStateAsync()
 	{
-		// Uzyskaj aktualny HttpContext
 		var httpContext = _httpContextAccessor.HttpContext;
 		ClaimsPrincipal user;
 
-		// Jeśli HttpContext istnieje oraz użytkownik jest uwierzytelniony – używamy jego tożsamości
 		if (httpContext != null && httpContext.User?.Identity != null && httpContext.User.Identity.IsAuthenticated)
 		{
-			//user = httpContext.User;
-			// Utwórz kopię istniejącej tożsamości
 			var identity = new ClaimsIdentity(httpContext.User.Identity);
 
-			// Dodaj dodatkowe claimy – mogą to być np. dane pobrane z bazy lub inne informacje
 			identity.AddClaim(new Claim("CustomClaim1", "Wartość1"));
 			identity.AddClaim(new Claim("CustomClaim2", "Wartość2"));
 
@@ -42,11 +37,10 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 		}
 		else
 		{
-			// Jeśli nie – tworzymy anonimowego użytkownika
 			user = new ClaimsPrincipal(new ClaimsIdentity());
 		}
 
-		return Save(new AuthenticationState(user)); //Task.FromResult(new AuthenticationState(user));
+		return Save(new AuthenticationState(user));
 	}
 
 	private AuthenticationState Save(AuthenticationState state)
