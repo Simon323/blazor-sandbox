@@ -29,8 +29,11 @@ public class WebSocketCurrencyIndividualProxyHandler
 			}
 
 			cts.Cancel();
-			_connections.Remove(webSocket);
-			Console.WriteLine($"User disconnected. Total users: {_connections.Count}");
+			if (_connections.Contains(webSocket))
+			{
+				_connections.Remove(webSocket);
+				Console.WriteLine($"User disconnected. Total users: {_connections.Count}");
+			}
 
 			if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
 			{
