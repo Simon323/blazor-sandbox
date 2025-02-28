@@ -1,0 +1,86 @@
+﻿@page "/counter"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+
+<h3>User Claims 1</h3>
+
+@if (authState != null)
+{
+    var user = authState.User;
+    if (user.Identity.IsAuthenticated)
+    {
+        <ul>
+            @foreach (var claim in user.Claims)
+            {
+                <li>@claim.Type: @claim.Value</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>User is not authenticated.</p>
+    }
+}
+else
+{
+    <p>Loading...</p>
+}
+
+<br />
+
+<h3>User Claims 2</h3>
+@if (_user != null)
+{
+    if (_user.Identity.IsAuthenticated)
+    {
+        <ul>
+            @foreach (var claim in _user.Claims)
+            {
+                <li>@claim.Type: @claim.Value</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>User is not authenticated.</p>
+    }
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; }
+
+    private int currentCount = 0;
+
+	private System.Security.Claims.ClaimsPrincipal? _user;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private AuthenticationState authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        var authState2 = await AuthStateTask;
+        _user = authState2.User;
+    }
+}

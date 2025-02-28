@@ -1,0 +1,15 @@
+﻿@using System.Text.Json
+@typeparam TModel
+
+<pre>@SerializeModel(Model)</pre>
+keke
+
+@code {
+	[Parameter, EditorRequired]
+	public TModel Model { get; set; } = default!;
+
+	public static string SerializeModel(TModel model)
+	{
+		return JsonSerializer.Serialize(model, new JsonSerializerOptions { WriteIndented = true });
+	}
+}

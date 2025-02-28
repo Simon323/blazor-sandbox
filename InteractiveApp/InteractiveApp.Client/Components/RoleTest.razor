@@ -1,0 +1,35 @@
+﻿@using InteractiveApp.Client.Extensions
+@using InteractiveApp.Client.Interfaces
+@inject IIdentityUserService IdentityUserService
+
+<button class="btn btn-primary" @onclick="addRoels">Add random role</button>
+<button class="btn btn-primary" @onclick="deleteRoles">Delete roles</button>
+<button class="btn btn-primary" @onclick="updateRoles">Update roles</button>
+
+@code {
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+
+	private async Task addRoels()
+	{
+		var authState = await AuthStateTask;
+		var userId = authState.User.GetUserId();
+
+		await IdentityUserService.AddRandomRoles(userId);
+	}
+
+	private async Task deleteRoles()
+	{
+		var authState = await AuthStateTask;
+		var userId = authState.User.GetUserId();
+		await IdentityUserService.DeleteAllRoles(userId);
+	}
+
+	private async Task updateRoles()
+	{
+		var authState = await AuthStateTask;
+		var userId = authState.User.GetUserId();
+		await IdentityUserService.Refresh(userId);
+	}
+}

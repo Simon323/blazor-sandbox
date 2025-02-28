@@ -1,0 +1,37 @@
+﻿@page "/"
+@using InteractiveApp.Client.Services
+@inject AppState AppState
+
+<h1>Strona główna</h1>
+
+@if (!AppState.SelectedCompanyId.HasValue || !AppState.SelectedInstanceId.HasValue)
+{
+    <p>Proszę wybrać firmę i instancję z list obok...</p>
+}
+else
+{
+    <h3>Wybrane ID firmy: @AppState.SelectedCompanyId</h3>
+    <h3>Wybrane ID instancji: @AppState.SelectedInstanceId</h3>
+
+    <!-- Tu pobierasz dashboardy – np. wstrzykujesz ID i wysyłasz request do serwisu/dalszej logiki -->
+    <p>
+        Tu np. można wyświetlić statystyki, np.
+        <code>DashboardService.GetStats(AppState.SelectedCompanyId.Value, AppState.SelectedInstanceId.Value)</code>
+    </p>
+}
+
+@code {
+    // Możesz np. w OnInitializedAsync subskrybować OnChange,
+    // żeby dynamicznie odświeżać zawartość:
+
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+}
+

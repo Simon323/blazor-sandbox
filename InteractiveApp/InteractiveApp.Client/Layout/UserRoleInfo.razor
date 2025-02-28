@@ -1,0 +1,8 @@
+﻿@using InteractiveApp.Client.Components
+@using InteractiveApp.Client.Extensions
+
+<AuthorizeView>
+	<Authorized>
+		<UserRoles Roles="context.User.GetUserRoles()" />
+	</Authorized>
+</AuthorizeView>

@@ -1,0 +1,107 @@
+﻿@using InteractiveApp.Client.Services
+@inject IInstanceService InstanceService
+@inject AppState AppState
+
+<InputSelect ValueExpression="@(()=>selectedInstanceId)"
+             Value="@selectedInstanceId"
+             ValueChanged="@((int? value) => OnValueChanged(value ))">
+    <option value="">-- Wybierz instancję --</option>  
+   @if (instances is not null)  
+   {  
+       @foreach (var inst in instances)  
+       {  
+           <option value="@inst.Id">@inst.Name</option>  
+       }  
+   }  
+</InputSelect>
+
+@code {
+    private List<Instance>? instances;
+    private int? selectedInstanceId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Możemy zasubskrybować event w AppState, by reagować, gdy firma się zmieni
+        AppState.OnChange += StateHasChanged;
+        AppState.OnChange += OnCompanyChanged;
+        
+        // Załaduj listę instancji dla aktualnego stanu (o ile CompanyId jest wybrany)
+        await LoadInstances();
+    }
+
+    private async void OnCompanyChanged()
+    {
+        await LoadInstances();
+        StateHasChanged();
+    }
+
+    private async Task LoadInstances()
+    {
+        if (AppState.SelectedCompanyId.HasValue)
+        {
+            instances = await InstanceService.GetInstancesByCompanyAsync(AppState.SelectedCompanyId.Value);
+            // Jeśli jeszcze nie mamy wybranej instancji, to bierzemy pierwszą
+            if (!AppState.SelectedInstanceId.HasValue && instances.Count > 0)
+            {
+                AppState.SelectedInstanceId = instances[0].Id;
+            }
+
+            selectedInstanceId = AppState.SelectedInstanceId;
+        }
+        else
+        {
+            instances = new List<Instance>();
+            selectedInstanceId = null;
+            AppState.SelectedInstanceId = null;
+        }
+    }
+
+    
+    private void OnValueChanged(int? i)
+    {
+        selectedInstanceId = i;
+
+        // Zapisz w stanie aplikacji
+        AppState.SelectedInstanceId = selectedInstanceId;
+    }
+
+    private void OnInstanceChange(ChangeEventArgs e)
+    {
+        selectedInstanceId = int.TryParse(e.Value?.ToString(), out var val) ? val : null;
+        AppState.SelectedInstanceId = selectedInstanceId;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Jeżeli zmieni się firma (AppState.SelectedCompanyId), chcemy ponownie wczytać instancje
+        // Najprościej sprawdzić, czy tak się stało, np.:
+        // (Ale w tym przykładzie wystarczy w OnChange lub w OnAfterRender sprawdzać.)
+        await base.OnParametersSetAsync();
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+        
+        // Kiedy wartość w AppState się zmieni, StateHasChanged() się wywoła (bo subskrybujemy OnChange).
+        // Możemy sprawdzić, czy to dotyczy companyId i wczytać instancje ponownie:
+        // ale to zależy od Twojego podejścia. Niekiedy wystarczy wykonać to w OnAfterRender i sprawdzić
+        // difference w AppState. Poniżej przykład:
+        // 
+        if (AppState.SelectedCompanyId.HasValue && 
+            (instances == null || instances.Count == 0 ||
+             (instances.Count > 0 && !instances.Exists(i => i.Id == AppState.SelectedInstanceId))))
+        {
+            // Jeśli firma się zmieniła, ładujemy jeszcze raz
+            await LoadInstances();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        // Jeśli komponent jest zarejestrowany dłużej, warto odsubskrybować
+        AppState.OnChange -= StateHasChanged;
+        AppState.OnChange -= OnCompanyChanged;
+    }
+}

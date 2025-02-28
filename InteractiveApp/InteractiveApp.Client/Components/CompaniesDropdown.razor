@@ -1,0 +1,54 @@
+﻿@using InteractiveApp.Client.Services
+@inject ICompanyService CompanyService
+@inject AppState AppState
+
+<InputSelect ValueExpression="@(()=>selectedCompanyId)"
+			 Value="@selectedCompanyId"
+			 ValueChanged="@((int? value) => OnValueChanged(value ))">
+	<option value="">-- Wybierz firmę --</option>
+	@if (companies is not null)
+	{
+		@foreach (var c in companies)
+		{
+			<option value="@c.Id">@c.Name</option>
+		}
+	}
+</InputSelect>
+
+@code {
+	private List<Company>? companies;
+	private int? selectedCompanyId;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Pobieramy listę firm
+		companies = await CompanyService.GetCompaniesAsync();
+
+		// Jeśli w AppState nie ma wybranego companyId, a mamy listę, to automatycznie ustaw pierwszą
+		if (!AppState.SelectedCompanyId.HasValue && companies.Count > 0)
+		{
+			AppState.SelectedCompanyId = companies[0].Id;
+		}
+
+		// Lokalna zmienna do bindowania dropdowna:
+		selectedCompanyId = AppState.SelectedCompanyId;
+	}
+
+	private void OnValueChanged(int? i)
+	{
+		selectedCompanyId = i;
+
+		// Zapisz w stanie aplikacji
+		AppState.SelectedCompanyId = selectedCompanyId;
+	}
+
+	private void OnCompanyChange(ChangeEventArgs e)
+	{
+		// Ewentualnie i tak mamy @bind="selectedCompanyId", więc
+		// selectedCompanyId jest już zaktualizowane, ale aby być pewnym:
+		selectedCompanyId = int.TryParse(e.Value?.ToString(), out var val) ? val : null;
+
+		// Zapisz w stanie aplikacji
+		AppState.SelectedCompanyId = selectedCompanyId;
+	}
+}

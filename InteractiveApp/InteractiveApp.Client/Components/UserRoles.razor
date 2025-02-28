@@ -1,0 +1,18 @@
+﻿<div class="d-flex gap-1 flex-wrap">
+	@if (Roles is { Count: > 0 })
+	{
+		foreach (var role in Roles)
+		{
+			<p>@role</p>
+		}
+	}
+	else
+	{
+		<p>-</p>
+	}
+</div>
+
+@code {
+	[Parameter, EditorRequired]
+	public List<string> Roles { get; set; } = [];
+}

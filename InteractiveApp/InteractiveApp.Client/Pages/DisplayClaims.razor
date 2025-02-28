@@ -1,0 +1,39 @@
+﻿@page "/displayclaims"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "nova")]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>User Claims</h3>
+
+@if (authState != null)
+{
+    var user = authState.User;
+    if (user.Identity.IsAuthenticated)
+    {
+        <ul>
+            @foreach (var claim in user.Claims)
+            {
+                <li>@claim.Type: @claim.Value</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>User is not authenticated.</p>
+    }
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    private AuthenticationState authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    }
+}
