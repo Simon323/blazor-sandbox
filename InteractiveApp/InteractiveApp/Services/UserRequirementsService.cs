@@ -1,12 +1,8 @@
-﻿using InteractiveApp.Data;
+﻿using InteractiveApp.Client.Interfaces;
+using InteractiveApp.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveApp.Services;
-
-public interface IUserRequirementsService
-{
-	Task<List<string>> GetUserRoles(string userId);
-}
 
 public class UserRequirementsService : IUserRequirementsService
 {

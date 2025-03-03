@@ -19,8 +19,15 @@ builder.Services.AddScoped<IInstanceService, InstanceService>();
 builder.Services.AddScoped<AppState>();
 
 builder.Services.AddTransient<IIdentityUserService, IdentityUserApiProxy>();
-
 builder.Services.AddRefitClient<IIdentityUserApi>()
+	.ConfigureHttpClient(httpClient =>
+	{
+		var apiUrl = builder.HostEnvironment.BaseAddress;
+		httpClient.BaseAddress = new Uri(apiUrl);
+	});
+
+builder.Services.AddTransient<IUserRequirementsService, UserRequirementsApiProxy>();
+builder.Services.AddRefitClient<IUserRequirementsApi>()
 	.ConfigureHttpClient(httpClient =>
 	{
 		var apiUrl = builder.HostEnvironment.BaseAddress;

@@ -99,6 +99,7 @@ namespace InteractiveApp.Components.Account
 					{
 						UserId = userId,
 						Email = email,
+						Roles = []
 					});
 				}
 

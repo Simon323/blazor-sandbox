@@ -4,9 +4,11 @@ using InteractiveApp.Components.Account;
 using InteractiveApp.Data;
 using InteractiveApp.Endpoints;
 using InteractiveApp.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +83,61 @@ builder.Services.AddTransient<IIdentityUserService, IdentityUserService>();
 //	};
 //});
 
+builder.Services.AddSwaggerGen(c =>
+{
+	c.SwaggerDoc("v1", new OpenApiInfo { Title = "InteractiveApp API", Version = "v1" });
+
+	// Dodaj konfiguracjê dla uwierzytelniania za pomoc¹ ciasteczek
+	c.AddSecurityDefinition("cookieAuth", new OpenApiSecurityScheme
+	{
+		Type = SecuritySchemeType.ApiKey,
+		In = ParameterLocation.Cookie,
+		Name = ".AspNetCore.Identity.Application",
+		Scheme = "cookieAuth",
+		Description = "U¿yj ciasteczka uwierzytelniaj¹cego, aby uzyskaæ dostêp do autoryzowanych endpointów"
+	});
+
+	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "cookieAuth"
+				}
+			},
+			new string[] {}
+		}
+	});
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+	options.Events = new CookieAuthenticationEvents
+	{
+		OnRedirectToLogin = context =>
+		{
+			if (context.Request.Path.StartsWithSegments("/api"))
+			{
+				context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+			}
+			else
+			{
+				context.Response.Redirect("/error401");
+			}
+			return Task.CompletedTask;
+		},
+		OnRedirectToAccessDenied = context =>
+		{
+			context.Response.StatusCode = StatusCodes.Status403Forbidden;
+			return Task.CompletedTask;
+		}
+	};
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -88,6 +145,11 @@ if (app.Environment.IsDevelopment())
 {
 	app.UseWebAssemblyDebugging();
 	app.UseMigrationsEndPoint();
+	app.UseSwagger();
+	app.UseSwaggerUI(c =>
+	{
+		c.SwaggerEndpoint("/swagger/v1/swagger.json", "InteractiveApp API v1");
+	});
 }
 else
 {

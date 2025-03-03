@@ -124,10 +124,13 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 
 			if (userId != null && email != null)
 			{
+				var roles = principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+
 				state.PersistAsJson(nameof(UserInfo), new UserInfo
 				{
 					UserId = userId,
 					Email = email,
+					Roles = roles
 				});
 			}
 		}
@@ -155,6 +158,7 @@ public class ModAuthenticationStateProvider : AuthenticationStateProvider, IClai
 				{
 					UserId = userId,
 					Email = email,
+					Roles = []
 				});
 			}
 		}
