@@ -1,0 +1,14 @@
+@MultitenantApp_HostAddress = http://localhost:5174
+
+GET {{MultitenantApp_HostAddress}}/Users/
+Accept: application/json
+
+###
+GET {{MultitenantApp_HostAddress}}/Products/
+Accept: application/json
+tenant: Apple
+
+###
+GET {{MultitenantApp_HostAddress}}/Products/
+Accept: application/json
+tenant: Samsung
