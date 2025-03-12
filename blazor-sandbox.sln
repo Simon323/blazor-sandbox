@@ -63,6 +63,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BasicMultitenantApp", "Basi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultitenantApp", "MultitenantApp\MultitenantApp.csproj", "{8CADDC0A-51CD-4E7D-8FBA-8AC66BCFF1D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiAppV2", "MultiAppV2\MultiAppV2.csproj", "{8D0CB48A-AF08-4C29-A65F-61E18471EEE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,10 @@ Global
 		{8CADDC0A-51CD-4E7D-8FBA-8AC66BCFF1D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CADDC0A-51CD-4E7D-8FBA-8AC66BCFF1D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CADDC0A-51CD-4E7D-8FBA-8AC66BCFF1D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D0CB48A-AF08-4C29-A65F-61E18471EEE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D0CB48A-AF08-4C29-A65F-61E18471EEE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D0CB48A-AF08-4C29-A65F-61E18471EEE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D0CB48A-AF08-4C29-A65F-61E18471EEE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,6 +185,7 @@ Global
 		{541F33D4-DA2A-4820-8F31-0F43EA709BCB} = {9E8A6DEE-136F-4645-9E39-4C8F905E323D}
 		{98E22005-E526-4A39-8EED-24FB2FC989CA} = {9E8A6DEE-136F-4645-9E39-4C8F905E323D}
 		{8CADDC0A-51CD-4E7D-8FBA-8AC66BCFF1D2} = {10799E75-4B19-40B9-B30A-B415E4B548AC}
+		{8D0CB48A-AF08-4C29-A65F-61E18471EEE1} = {10799E75-4B19-40B9-B30A-B415E4B548AC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75F753A9-5C9F-4C3C-AF6B-F9890869BEA2}
